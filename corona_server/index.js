@@ -3,19 +3,19 @@
  * @version 0.0.1
  */
 
-const f_express = require('express')
+const Express = require('express')
+const o_apiRouter = require('./modules/api/apiRouter')
 
 // TODO: change port assignment when server gets deployed to production
 // TODO: maybe also rework local log, if needed create log modules to make it easier to change later on
 const n_port = 8000;
 
-const o_app = f_express();
+const o_app = Express();
 
 
 
 
 // Initialize API-Router
-const o_apiRouter = require('./modules/backend/apiRouter')
 o_app.use('/api', o_apiRouter)
 
 // TODO: Remove before going production

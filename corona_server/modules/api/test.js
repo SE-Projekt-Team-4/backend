@@ -19,10 +19,13 @@ function f_requestHandler(req, res, next) {
         .then(
             (fulfilled) => {
                 res.status(200);
-                res.json(fulfilled);
+                console.log("inTest");
+                res.responseData = fulfilled;
+                next();
             },
             (rejected) => {
                 res.status(rejected.status);
+                throw new Error("babui");
                 res.json(rejected.errorData);
             }
         ).catch(
@@ -54,6 +57,9 @@ function f_getTestData(testId) {
                 fName: "22222",
                 lName: "22222"
             });
+        }
+        else if (testId == 5) {
+            throw new Error();
         }
         else {
             reject({
