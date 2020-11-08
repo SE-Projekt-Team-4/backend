@@ -1,4 +1,4 @@
-f_getAllMatches = require("../model/matchManager").getAll
+f_getAllMatches = require("../../model/matchManager").getAll
 
 /**
  * @module getAllMatches
@@ -15,7 +15,6 @@ f_getAllMatches = require("../model/matchManager").getAll
  * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
  */
 async function f_requestHandler(req, res, next) {
-    console.log("inMatches");
     try {
         a_matches = await f_getAllMatches();
         a_matchdata = [];
@@ -24,14 +23,12 @@ async function f_requestHandler(req, res, next) {
                 a_matchdata.push(o_match.getData())
             }
         );
-        res.status(200);
-        res.json(
-            {
-                data : a_matchdata
-            });      
+        req.manager.setData(a_matchdata).sendResponse();   
     }
     catch (error) {
-        next(error);
+        console.log(req.manager.getResponseObject());
+        console.error(error);
+        req.manager.setError("SYSERR").sendResponse();
     }
 
 }

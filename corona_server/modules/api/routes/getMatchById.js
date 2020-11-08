@@ -1,4 +1,4 @@
-f_getMatch = require("../model/matchManager").getSingle
+f_getMatch = require("../../model/matchManager").getSingle
 
 /**
  * @module getMatchById
@@ -19,23 +19,17 @@ async function f_requestHandler(req, res, next) {
         o_match = await f_getMatch(req.params.id);
 
         if (o_match != null){
-            res.status(200);
-            res.json(
-                { data : o_match.getData()}
-            );
+            req.manager.setData(o_match.getData()).sendResponse();
         }
         else {
-            res.status(404);
-            res.json(
-                {error: "No Match with that Id found"}
-            );            
+            req.manager.setError("NOMATCH").sendResponse();            
         }       
     }
     catch (error) {
-        next(error);
+        console.log(req.manager.getResponseObject());
+        console.error(error);
+        req.manager.setError("SYSERR").sendResponse();
     }
-
-
 }
 
 

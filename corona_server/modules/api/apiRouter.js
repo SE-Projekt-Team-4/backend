@@ -5,38 +5,57 @@
 const Express = require("express");
 const o_router = Express.Router();
 const o_test = require("./test");
-const o_allMatches = require("./getAllMatches");
-const o_matchById = require("./getMatchById");
-const o_postBooking = require("./postBooking");
+const o_allMatches = require("./routes/getAllMatches");
+const o_matchById = require("./routes/getMatchById");
+const o_postBooking = require("./routes/postBooking");
+const ApiCallData = require("./apiCallManager");
 
-
-function f_handleParseErrors(err, req, res, next) {
-
-  res.status(400);
-  res.json({ error : "Not a valid Request Body! Json parse Error" });
+// Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
+function f_appendApiCallManagerToReq(req, res, next) {
+  req.manager = new ApiCallData(req, res);
+  console.log(req.manager._callData);
+  next();
 }
 
-function f_handleUncaughtErrors(err, req, res, next) {
+// Handle Errors that can not be handled in routes -------------------------------
+function f_handleParseErrors(err, req, res, next) {
+  req.manager.setError("JSONPARSE").sendResponse();
+}
 
-  console.error(err.stack);
+function f_handle404(req, res, next) {
+  req.manager.setError("NOROUTE").sendResponse();
+}
+
+function f_handleApiCallManagerErrors(err, req, res, next) {
+  console.error(err);
   res.status(500);
   res.json({
-    error : "Something broke! - (INTERNAL SERVER ERROR)"
+    error : {
+      errorCode : "CRITICAL",
+      status : 500,
+      message : "If this error persists, please contact the server admin"
+    }
   });
 }
+//-----------------------------------------------------------------------------------------
 
-// TODO: Remove before going production
-// returns test data for the corresponding id
-o_router.get("/test/:testId", o_test.requestHandler);
 
+o_router.use(
+  f_appendApiCallManagerToReq,
+  f_handleApiCallManagerErrors,
+  Express.json(),
+  f_handleParseErrors
+);
+
+//o_router.get("/test/:testId", o_test.requestHandler);
 
 o_router.get("/matches", o_allMatches.handleRequest);
 
 o_router.get("/matches/:id", o_matchById.handleRequest);
 
-o_router.post("/bookings", Express.json(), f_handleParseErrors, o_postBooking.handleRequest);
+o_router.post("/bookings", o_postBooking.handleRequest);
 
-// Handle uncaught Errors
-o_router.use(f_handleUncaughtErrors);
+// Called last ( only if no other route matches)
+o_router.use(f_handle404);
 
 module.exports = o_router;
