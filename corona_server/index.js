@@ -5,14 +5,12 @@
 
 const Express = require('express')
 const o_apiRouter = require('./modules/api/apiRouter')
-
-// TODO: change port assignment when server gets deployed to production
-// TODO: maybe also rework local log, if needed create log modules to make it easier to change later on
-const n_port = 8000;
-
 const o_app = Express();
 
 
+// TODO: change port assignment when server gets deployed to production
+// TODO: maybe also rework local log, if needed create log modules to make it easier to change later on
+const n_port = process.env.PORT || 8000;
 
 
 // Initialize API-Router
