@@ -1,0 +1,7 @@
+applications:
+  - name: coronaprojekt
+    random-route: true
+    path: app
+    buidpack: https://github.com/cloudfoundry/nodejs-buidpack
+    host: coronaprojekt
+    memory: 128M

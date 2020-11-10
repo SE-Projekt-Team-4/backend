@@ -9,7 +9,12 @@ const o_allMatches = require("./routes/getAllMatches");
 const o_matchById = require("./routes/getMatchById");
 const o_postBooking = require("./routes/postBooking");
 const ApiCallData = require("./apiCallManager");
-const f_cors = require("cors")(); //Allow all Domains for CORS
+
+function f_allowCors (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+}
 
 // Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
 function f_appendApiCallManagerToReq(req, res, next) {
@@ -40,9 +45,9 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
 }
 //-----------------------------------------------------------------------------------------
 
-
+o_router.options(f_allowCors);
 o_router.use(
-  f_cors,
+  f_allowCors,
   f_appendApiCallManagerToReq,
   f_handleApiCallManagerErrors,
   Express.json(),
