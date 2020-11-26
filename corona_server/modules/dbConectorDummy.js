@@ -71,7 +71,7 @@ function f_getBookingsByMatchId(matchId) {
     var a = [];
       for (var v in results) {
           a.push(
-              f_convertBooking(v)
+              f_convertBooking(bookings[v])
           );
       }
       return a;
@@ -143,12 +143,23 @@ function f_deleteMatch(id) {
     // TODO: NOT SUPPORTED
 }
 
+function f_getNumberOfBookings(matchId) {
+    var n = 0;
+    bookings.forEach((a_booking) => {
+        if (a_booking[1] === matchId){
+            n = n + 1; 
+        }
+    });
+    return n;
+}
+
 const o_matchQueries = {
     create : f_createMatch,
     get : f_getMatch,
     getAll : f_getAllMatches,
     update : f_updateMatch,
-    delete : f_deleteMatch
+    delete : f_deleteMatch,
+    getNumberOfBookings : f_getNumberOfBookings
 }
 //-------------------------------------------------------------------------------------------------------------------
 

@@ -113,9 +113,11 @@ function f_getVisitor(id) {
 function f_getAllVisitors() {
     const a_visitorData = o_dbVisitors.getAll();
     const a_visitors = [];
-    for (const o_visitorData in a_visitorData) {
-        a_visitors.push(f_loadVisitorFromDataRow(o_visitorData));
-    }
+
+    a_visitorData.forEach(
+        (o_visitorData)=>{
+            a_visitors.push(f_loadVisitorFromDataRow(o_visitorData));
+        });        
     return a_visitors;
 }
 

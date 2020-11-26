@@ -4,22 +4,22 @@
  */
 const Express = require("express");
 const o_router = Express.Router();
-const o_test = require("./test");
 const o_allMatches = require("./routes/getAllMatches");
 const o_matchById = require("./routes/getMatchById");
 const o_postBooking = require("./routes/postBooking");
 const o_allVisitors = require("./routes/getAllVisitors");
+const o_visitorsByMatchId = require("./routes/getVisitorsForMatches");
 const ApiCallData = require("./apiCallManager");
 
-
-function f_allowCors  (req, res, next) {
+// HANDLER =================================================================================================================
+function f_allowCors(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Request-Method", "POST, GET, OPTIONS, PUT, DELETE");  // for now we will act as if we allow all methods
   next();
 }
 
-function f_handleCorsPrefetchRequests  (req, res, next) {
+function f_handleCorsPrefetchRequests(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Request-Method", "POST, GET, OPTIONS, PUT, DELETE");  // for now we will act as if we allow all methods
@@ -46,17 +46,19 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
   console.error(err);
   res.status(500);
   res.json({
-    error : {
-      errorCode : "CRITICAL",
-      status : 500,
-      message : "If this error persists, please contact the server admin"
+    error: {
+      errorCode: "CRITICAL",
+      status: 500,
+      message: "If this error persists, please contact the server admin"
     }
   });
 }
 //-----------------------------------------------------------------------------------------
+// HANDLER =================================================================================================================
 
+
+// ROUTES ==================================================================================================================
 // Add CORS headers and answer PreflightRequests
-
 
 o_router.use(
   f_allowCors,
@@ -66,19 +68,22 @@ o_router.use(
   f_handleParseErrors
 );
 
-//o_router.get("/test/:testId", o_test.requestHandler);
 
 o_router.route("/matches")
   .options(f_handleCorsPrefetchRequests)
   .get(o_allMatches.handleRequest);
 
-  o_router.route("/visitors")
+o_router.route("/visitors")
   .options(f_handleCorsPrefetchRequests)
   .get(o_allVisitors.handleRequest);
 
 o_router.route("/matches/:id")
   .options(f_handleCorsPrefetchRequests)
   .get(o_matchById.handleRequest);
+
+o_router.route("/matches/:id/visitors")
+  .options(f_handleCorsPrefetchRequests)
+  .get(o_visitorsByMatchId.handleRequest);
 
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)

@@ -46,6 +46,10 @@ class Booking {
         }
     }
 
+    getVisitor() {
+        return this._visitor;
+    }
+
 }
 
 // Private Section --------------------------------------------------------------------------------------------------
@@ -78,10 +82,13 @@ function f_getBooking(id) {
 function f_getBookingsForMatch(match) {
     const a_bookingData = o_dbBookings.getByMatchId(match.getId());
     const a_bookings = [];
-    for (const o_bookingData in a_bookingData) {
-        a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
-    }
+
+    a_bookingData.forEach(
+        (o_bookingData)=>{
+            a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
+        });        
     return a_bookings;
+
 }
 
 module.exports.create = f_createBooking;

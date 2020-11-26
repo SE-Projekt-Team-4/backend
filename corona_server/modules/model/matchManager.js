@@ -33,12 +33,26 @@ class Match {
             opponent : this._opponent,
             dateTime : this._dateTime,
             maxSpaces : this._maxSpaces,
-            isCancelled : this._isCancelled
+            isCancelled : this._isCancelled,
+            freeSpaces : this.getFreeSpaces()
         }
     }
 
     getBookings() {
         return o_bookingManager.getAllForMatch(this);
+    }
+
+    getVisitors() {
+        var a_visitors = [];
+        this.getBookings().forEach(
+            (o_booking) => {
+                a_visitors.push(o_booking.getVisitor());
+            });
+        return a_visitors;
+    }
+
+    getFreeSpaces() {
+        return this._maxSpaces - o_dbMatches.getNumberOfBookings(this._id);
     }
 }
 
