@@ -1,9 +1,7 @@
-
+const o_bookingManager = require ("./bookingManager");
+const o_dbMatches = require ("../dbConectorDummy").matchQueries;
 
 var matches;
-
-
-
 
 
 class Match {
@@ -13,7 +11,7 @@ class Match {
         this._opponent = opponent;
         this._dateTime = dateTime;
         this._maxSpaces = maxSpaces;
-        this._isCancelled = (isCancelled !== true);
+        this._isCancelled = (isCancelled === true);
     }
 
     getId() {
@@ -21,18 +19,12 @@ class Match {
     }
 
     update() {
-        if (this._id == undefined) {
-            throw new Error("Critical Programming Error - No id found");
-        }
-        console.log("update to db");
+        o_dbMatches.update(this._id, this._opponent, this._dateTime, this._maxSpaces, this._isCancelled);
         return this;
     }
 
     delete() {
-        if (this.id == undefined) {
-            throw new Error("Critical Programming Error - No id found");
-        }
-        console.log("Delete row in db");
+        o_dbMatches.delete(this._id);
     }
 
     getData() {
@@ -44,51 +36,46 @@ class Match {
             isCancelled : this._isCancelled
         }
     }
+
+    getBookings() {
+        return o_bookingManager.getAllForMatch(this);
+    }
 }
 
-function f_createMatchDay(opponent, dateTime, maxSpaces, isCancelled) {
-// Save to db
-return new Match();
+
+// Private Section --------------------------------------------------------------------------------------------------
+function f_loadMatchFromDataRow(matchData) {
+    return new Match(matchData.ID, matchData.OPPONENT, matchData.DATE_TIME, matchData.MAX_SPACES, matchData.IS_CANCELLED);
 }
-    
-function f_getMatchDay(id) {
-// Get from db
-return new Promise((resolve, reject) => {
-    try {
-        if(id == 55){
-            throw new Error("DB Error");
-        }
-        if(id < matches.length){
-            resolve(matches[id]);
-        }
-        else{
-            resolve();
-        }
+
+//-------------------------------------------------------------------------------------------------------------------
+
+// Exports ----------------------------------------------------------------------------------------------------------
+function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
+    const o_matchData = o_dbMatches.create(opponent, dateTime, maxSpaces, isCancelled);
+    return f_loadMatchFromDataRow(o_matchData);
+}
+
+function f_getMatch(id) {
+    const o_matchData = o_dbMatches.get(id);
+    if (o_matchData === null) {
+        return null;
     }
-    catch (e) {
-        reject(e);
-    }
-});
+    return f_loadMatchFromDataRow(o_matchData);
 }
 
 function f_getAllMatches() {
-// Get from db
-return matches;
+    const a_matchData = o_dbMatches.getAll();
+    const a_matches = [];
+
+    a_matchData.forEach(
+        (o_matchData)=>{
+            a_matches.push(f_loadMatchFromDataRow(o_matchData));
+        });        
+    return a_matches;
 }
 
-matches = [
-    new Match(0, "Dusseldorf", "2007-12-24T18:21Z", 400, false),
-    new Match(1, "Mannheim", "2007-12-22T18:21Z", 200, false),
-    new Match(2, "Frauheim", "2007-12-21T18:21Z", 300, false),
-    new Match(3, "Burg", "2007-12-25T18:21Z", 330, true),
-    new Match(4, "Hinterdorf", "2007-12-28T18:21Z", 222, false),
-    new Match(5, "Vorderdorf", "2007-12-12T18:21Z", 666, false),
-    new Match(6, "Neckarstadt", "2007-12-13T18:21Z", 300, false)
-];
 
-
-
-
-module.exports.create = f_createMatchDay;
-module.exports.getSingle = f_getMatchDay;
+module.exports.create = f_createMatch;
+module.exports.getById = f_getMatch;
 module.exports.getAll = f_getAllMatches;

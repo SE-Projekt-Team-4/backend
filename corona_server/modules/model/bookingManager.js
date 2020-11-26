@@ -1,3 +1,6 @@
+const o_visitorManager = require ("./visitorManager");
+const o_matchManager = require ("./matchManager");
+const o_dbBookings = require ("../dbConectorDummy").bookingQueries;
 
 class Booking {
 
@@ -7,27 +10,22 @@ class Booking {
         return(s_idPart + s_verification);
     }
 
-    // This is a private constructor and should not be exported
-    constructor(id, matchDay, visitor, isRedeemed, verificationCode) {
+    // Private Constructor
+    constructor(id, match, visitor, isRedeemed, verificationCode) {
         this._id = id;
-        this._matchDay = matchDay;
+        this._match = match;
         this._visitor = visitor;
         this._isRedeemed = isRedeemed;
         this._verificationCode = verificationCode;
     }
 
     update() {
-        if (this._id == undefined) {
-            throw new Error("Critical Programming Error - No id found");
-        }
-        console.log("update to db");
+        o_dbBookings.update(this._id, this._match.getId(), this._visitor.getId(), this._isRedeemed, this._verificationCode);
         return this;
     }
 
     delete() {
-        if (this.id !== null) {
-            console.log("Delete row in db");
-        } 
+        o_dbBookings.delete(this._id);
     }
 
     getVerificationCode() {
@@ -38,20 +36,54 @@ class Booking {
         this._isRedeemed = true;
     }
 
+    getData() {
+        return {
+            id : this._id,
+            match : this._match.getData(),
+            visitor : this._visitor.getData(),
+            isRedeemed : this._isRedeemed,
+            verificationCode : this._verificationCode
+        }
+    }
+
 }
 
-function f_createBooking(matchDay, visitor) {
-    const b_isRedeemed = false;
-    // Save to db - get Id 
-    const s_verificationCode = Booking._generateVerificationCode()
-    const id = 5
-return new Booking(id, matchDay, visitor, b_isRedeemed, s_verificationCode);
+// Private Section --------------------------------------------------------------------------------------------------
+function f_loadBookingFromDataRow(bookingData) {
+    const o_match = o_matchManager.getById(bookingData.MATCH_ID);
+    const o_visitor = o_visitorManager.getById(bookingData.VISITOR_ID);
+    return new Booking(bookingData.ID, o_match, o_visitor, bookingData.IS_REDEEMED, bookingData.VERIFICATION_CODE);
+}
+//-------------------------------------------------------------------------------------------------------------------
+
+// Exports ----------------------------------------------------------------------------------------------------------
+function f_createBooking(match, visitor) {
+
+    const o_bookingData = o_dbBookings.create(match.getId(), visitor.getId(), false, "");
+
+    const o_booking = f_loadBookingFromDataRow(o_bookingData);
+
+    o_booking._verificationCode = Booking._generateVerificationCode(o_booking._id);
+
+    o_booking.update();
+
+    return o_booking;
 }
 
 function f_getBooking(id) {
-// Get from db
-return new Booking();
+    const o_bookingData = o_dbBookings.get(id);
+    return f_loadBookingFromDataRow(o_bookingData);
+}
+
+function f_getBookingsForMatch(match) {
+    const a_bookingData = o_dbBookings.getByMatchId(match.getId());
+    const a_bookings = [];
+    for (const o_bookingData in a_bookingData) {
+        a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
+    }
+    return a_bookings;
 }
 
 module.exports.create = f_createBooking;
-module.exports.get = f_getBooking;
+module.exports.getById = f_getBooking;
+module.exports.getAllForMatch = f_getBookingsForMatch;

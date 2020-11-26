@@ -1,6 +1,6 @@
 f_createBooking = require("../../model/bookingManager").create
 f_createVisitor = require("../../model/visitorManager").create
-f_getMatch = require("../../model/matchManager").getSingle
+f_getMatch = require("../../model/matchManager").getById
 
 /**
  * @module postBooking
@@ -38,7 +38,7 @@ async function f_requestHandler(req, res, next) {
                     req.manager.setError("BOOKNOMATCH").sendResponse();
                 }
                 const o_booking = f_createBooking(o_match, o_visitor);
-                req.manager.setData(o_booking).sendResponse();
+                req.manager.setData(o_booking.getData()).sendResponse();
             }
             catch (error) {
                 if (error instanceof TypeError){
