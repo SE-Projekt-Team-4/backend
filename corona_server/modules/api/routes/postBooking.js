@@ -34,11 +34,18 @@ async function f_requestHandler(req, res, next) {
             try {
                 const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber);
                 const o_match = await f_getMatch(n_id);
+
+
                 if (o_match === undefined) {
                     req.manager.setError("BOOKNOMATCH").sendResponse();
                 }
-                const o_booking = f_createBooking(o_match, o_visitor);
-                req.manager.setData(o_booking.getData()).sendResponse();
+                else if (o_match.getFreeSpaces() <= 0 ){
+                    req.manager.setError("BOOKNOSPACE").sendResponse();
+                }
+                else {
+                    const o_booking = f_createBooking(o_match, o_visitor);
+                    req.manager.setData(o_booking.getData()).sendResponse();
+                }
             }
             catch (error) {
                 if (error instanceof TypeError){

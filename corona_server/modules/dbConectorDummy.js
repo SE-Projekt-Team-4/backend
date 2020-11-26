@@ -102,7 +102,7 @@ const o_bookingQueries = {
 
 //Dummy Data
 var matches = [
-    [0, "Dusseldorf", "2007-12-24T18:21Z", 400, false],
+    [0, "Schalke 04", "2007-12-24T18:21Z", 3, false],
     [1, "Mannheim", "2007-12-22T18:21Z", 200, false],
     [2, "Frauheim", "2007-12-21T18:21Z", 300, true],
     [3, "Burg", "2007-12-25T18:21Z", 330, true],
