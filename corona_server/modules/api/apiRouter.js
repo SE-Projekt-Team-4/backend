@@ -7,6 +7,7 @@ const o_router = Express.Router();
 const o_allMatches = require("./routes/getAllMatches");
 const o_matchById = require("./routes/getMatchById");
 const o_postBooking = require("./routes/postBooking");
+const o_postMatch = require("./routes/postMatch");
 const o_allVisitors = require("./routes/getAllVisitors");
 const o_visitorsByMatchId = require("./routes/getVisitorsForMatches");
 const ApiCallData = require("./apiCallManager");
@@ -58,8 +59,8 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
 
 
 // ROUTES ==================================================================================================================
-// Add CORS headers and answer PreflightRequests
 
+// Add CORS headers and answer PreflightRequests
 o_router.use(
   f_allowCors,
   f_appendApiCallManagerToReq,
@@ -71,7 +72,8 @@ o_router.use(
 
 o_router.route("/matches")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_allMatches.handleRequest);
+  .get(o_allMatches.handleRequest)
+  .post(o_postMatch.handleRequest);
 
 o_router.route("/visitors")
   .options(f_handleCorsPrefetchRequests)

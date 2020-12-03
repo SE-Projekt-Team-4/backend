@@ -1,4 +1,4 @@
-const o_dbVisitors = require("../dbConectorDummy").visitorQueries;
+const o_dbVisitors = require("./dbConectorDummy").visitorQueries;
 const o_typeHelper = require("../typeHelper");
 
 

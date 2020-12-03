@@ -30,7 +30,7 @@ async function f_requestHandler(req, res, next) {
         const s_eMail = req.body.eMail;
 
         if (isNaN(n_id)) {
-            req.manager.setError("BADREQUEST").sendResponse(res);
+            req.manager.setError("PARAMNOTVALID").sendResponse(res);
         }
         else {
             try {
@@ -52,7 +52,7 @@ async function f_requestHandler(req, res, next) {
             catch (error) {
                 if (error instanceof TypeError){
                     console.log(error);
-                    req.manager.setError("BOOKNOTVALID").sendResponse();
+                    req.manager.setError("PARAMNOTVALID").sendResponse();
                 }
                 else{
                     throw error;

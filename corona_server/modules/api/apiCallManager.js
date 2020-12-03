@@ -13,49 +13,45 @@ class ApiCallManager {
         ApiCallManager.numOfCalls = ApiCallManager.numOfCalls + 1;
     }
 
-    setError(errorcode) {
+    setError(errorCode) {
         const o_customErrors = {
             "SYSERR" : {
-                errorCode : "SYSERR",
                 status : 500,
                 message : "500 - Internal Server Error"
             },
             "JSONPARSE" : {
-                errorCode : "JSONPARSE",
                 status : 400,
                 message : "There was a JSON Parsing Error"
             },
             "NOROUTE" : {
-                errorCode : "NOROUTE",
                 status : 404,
                 message : "No route with that name exists"
             },
             "NOMATCH" : {
-                errorCode : "NOMATCH",
                 status : 404,
                 message : "No match with that Id exists"
             },
             "BOOKNOMATCH" : {
-                errorCode : "BOOKNOMATCH",
                 status : 422,
                 message : "Could not create Booking, no Match with that id exists"
             },
             "BOOKNOSPACE" : {
-                errorCode : "BOOKNOSPACE",
                 status : 422,
                 message : "Could not create Booking, the match is already booked out"
             },
-            "BOOKNOTVALID" : {
-                errorCode : "BOOKNOTVALID",
+            "PARAMNOTVALID" : {
                 status : 403,
                 message : "Bad Request - One or more parameters were invalid"
-            },
+            }
         }
         delete this._callData.data;
         delete this._callData.error;
-        this._callData.error = o_customErrors[errorcode];
+        this._callData.error = o_customErrors[errorCode];
         if(this._callData.error === undefined) {
-            throw new Error("Errorhandling failed - Unknown Error");
+            throw new Error("Errorhandling failed - Unknown ErrorCode: " + errorCode);
+        }
+        else {
+            this._callData.error.errorCode = errorCode
         }
         return this;
     }

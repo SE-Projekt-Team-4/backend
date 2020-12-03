@@ -1,5 +1,5 @@
 const o_bookingManager = require("./bookingManager");
-const o_dbMatches = require("../dbConectorDummy").matchQueries;
+const o_dbMatches = require("./dbConectorDummy").matchQueries;
 const o_typeHelper = require("../typeHelper");
 
 
@@ -87,16 +87,16 @@ function f_loadMatchFromDataRow(matchData) {
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
-function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
+function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
 
     if (o_typeHelper.test("NAME", opponent)
-        && o_typeHelper.test("DATE_TIME_STRING", dateTime)
+        && o_typeHelper.test("DATE_TIME_STRING", dateTimeString)
         && o_typeHelper.test("POSITIVE_INT", maxSpaces)
         && typeof isCancelled === "boolean") {
 
-        const o_date = o_typeHelper.convertToDate(matchData.dateTime);   
+        const o_date = o_typeHelper.convertToDate(dateTimeString);   
 
-        const o_matchData = o_dbMatches.create(opponent, o_date, maxSpaces, isCancelled);
+        const o_matchData = o_dbMatches.create(opponent, o_date.toISOString() , maxSpaces, isCancelled);
         return f_loadMatchFromDataRow(o_matchData);
     }
     else {

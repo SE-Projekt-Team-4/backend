@@ -1,6 +1,6 @@
 const o_visitorManager = require("./visitorManager");
 const o_matchManager = require("./matchManager");
-const o_dbBookings = require("../dbConectorDummy").bookingQueries;
+const o_dbBookings = require("./dbConectorDummy").bookingQueries;
 const o_typeHelper = require("../typeHelper");
 
 class Booking {
@@ -77,10 +77,11 @@ function f_loadBookingFromDataRow(bookingData) {
 
 // Exports ----------------------------------------------------------------------------------------------------------
 function f_createBooking(match, visitor) {
+    
+        if (!match.isValid() || !visitor.isValid()) {
+            throw new TypeError("One or more Invalid Parameters");
+        }
 
-    if (!match.isValid() || !visitor.isValid()) {
-        throw new TypeError("One or more Invalid Parameters");
-    }
 
     const o_bookingData = o_dbBookings.create(match.getId(), visitor.getId(), false, null);
 
