@@ -26,13 +26,15 @@ async function f_requestHandler(req, res, next) {
         const s_postcode = req.body.postcode;
         const s_street = req.body.street;
         const s_houseNumber = req.body.houseNumber;
+        const s_phoneNumber = req.body.phoneNumber;
+        const s_eMail = req.body.eMail;
 
         if (isNaN(n_id)) {
             req.manager.setError("BADREQUEST").sendResponse(res);
         }
         else {
             try {
-                const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber);
+                const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
                 const o_match = await f_getMatch(n_id);
 
 

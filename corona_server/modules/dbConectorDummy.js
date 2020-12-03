@@ -102,13 +102,13 @@ const o_bookingQueries = {
 
 //Dummy Data
 var matches = [
-    [0, "Schalke 04", "2007-12-24T18:21Z", 3, false],
-    [1, "Mannheim", "2007-12-22T18:21Z", 200, false],
-    [2, "Frauheim", "2007-12-21T18:21Z", 300, true],
-    [3, "Burg", "2007-12-25T18:21Z", 330, true],
-    [4, "Hinterdorf", "2007-12-28T18:21Z", 222, false],
-    [5, "Vorderdorf", "2007-12-12T18:21Z", 666, false],
-    [6, "Neckarstadt", "2007-12-13T18:21Z", 300, false]
+    [0, "Schalke 04", "2007-12-12T19:21:00.000Z", 3, false],
+    [1, "Mannheim", "2007-12-11T20:21:00.000Z", 200, false],
+    [2, "Frauheim", "2007-12-20T08:21:00.000Z", 300, true],
+    [3, "Burg", "2007-12-08T09:00:00.000Z", 330, true],
+    [4, "Hinterdorf", "2007-12-04T18:21:00.000Z", 222, false],
+    [5, "Vorderdorf", "2007-12-02T18:21:00.000Z", 666, false],
+    [6, "Neckarstadt", "2007-12-08T18:21:00.000Z", 300, false]
 ];
 
 function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
