@@ -13,7 +13,7 @@ class ApiCallManager {
         ApiCallManager.numOfCalls = ApiCallManager.numOfCalls + 1;
     }
 
-    setError(errorCode) {
+    setError(errorCode, additionalData) {
         const o_customErrors = {
             "SYSERR" : {
                 status : 500,
@@ -31,6 +31,10 @@ class ApiCallManager {
                 status : 404,
                 message : "No match with that Id exists"
             },
+            "REDEEMNOMATCH" : {
+                status : 404,
+                message : "No booking found for verification Code"
+            },
             "BOOKNOMATCH" : {
                 status : 422,
                 message : "Could not create Booking, no Match with that id exists"
@@ -42,6 +46,10 @@ class ApiCallManager {
             "PARAMNOTVALID" : {
                 status : 403,
                 message : "Bad Request - One or more parameters were invalid"
+            },
+            "ALREADYREDEEMED" : {
+                status : 422,
+                message : "This booking has already been redeemed"
             }
         }
         delete this._callData.data;
@@ -52,6 +60,9 @@ class ApiCallManager {
         }
         else {
             this._callData.error.errorCode = errorCode
+            if(additionalData !== null && additionalData !== undefined){
+                this._callData.error.additionalData = additionalData
+            }
         }
         return this;
     }

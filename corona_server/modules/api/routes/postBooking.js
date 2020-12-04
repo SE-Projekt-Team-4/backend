@@ -33,39 +33,33 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse(res);
         }
         else {
-            try {
-                const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
-                const o_match = await f_getMatch(n_id);
+            const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+            const o_match = await f_getMatch(n_id);
 
 
-                if (o_match === undefined) {
-                    req.manager.setError("BOOKNOMATCH").sendResponse();
-                }
-                else if (o_match.getFreeSpaces() <= 0 ){
-                    req.manager.setError("BOOKNOSPACE").sendResponse();
-                }
-                else {
-                    const o_booking = f_createBooking(o_match, o_visitor);
-                    req.manager.setData(o_booking.getData()).sendResponse();
-                }
+            if (o_match === null) {
+                req.manager.setError("BOOKNOMATCH").sendResponse();
             }
-            catch (error) {
-                if (error instanceof TypeError){
-                    console.log(error);
-                    req.manager.setError("PARAMNOTVALID").sendResponse();
-                }
-                else{
-                    throw error;
-                }
+            else if (o_match.getFreeSpaces() <= 0) {
+                req.manager.setError("BOOKNOSPACE").sendResponse();
             }
-
+            else {
+                const o_booking = f_createBooking(o_match, o_visitor);
+                req.manager.setData(o_booking.getData()).sendResponse();
+            }
         }
 
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        if (error instanceof TypeError) {
+            console.log(error);
+            req.manager.setError("PARAMNOTVALID").sendResponse();
+        }
+        else{
+            console.log(req.manager.getResponseObject());
+            console.error(error);
+            req.manager.setError("SYSERR").sendResponse();
+        }
     }
 
 

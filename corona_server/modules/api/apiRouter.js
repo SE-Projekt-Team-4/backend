@@ -11,6 +11,7 @@ const o_postMatch = require("./routes/postMatch");
 const o_allVisitors = require("./routes/getAllVisitors");
 const o_visitorsByMatchId = require("./routes/getVisitorsForMatches");
 const o_putMatch = require("./routes/putMatch");
+const o_redeemBooking = require("./routes/redeemBooking");
 const ApiCallData = require("./apiCallManager");
 
 // HANDLER =================================================================================================================
@@ -92,6 +93,10 @@ o_router.route("/matches/:id/visitors")
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)
   .post(o_postBooking.handleRequest);
+
+o_router.route("/bookings/redeem")
+  .options(f_handleCorsPrefetchRequests)
+  .post(o_redeemBooking.handleRequest);
 
 // Called last ( only if no other route matches)
 o_router.use(f_handle404);

@@ -21,7 +21,7 @@ class Booking {
     }
 
     update() {
-        o_dbBookings.update(this._id, this._match.getId(), this._visitor.getId(), this._isRedeemed, this._verificationCode);
+        f_updateDataRowFromBooking(this);
         return this;
     }
 
@@ -34,7 +34,14 @@ class Booking {
     }
 
     redeem() {
-        this._isRedeemed = true;
+        if (this._isRedeemed === true){
+            return false;
+        }
+        else {
+            this._isRedeemed = true;
+            this.update();
+            return true;
+        }
     }
 
     getData() {
@@ -73,6 +80,21 @@ function f_loadBookingFromDataRow(bookingData) {
         throw new TypeError("One or more Invalid Attributes");
     }
 }
+
+function f_updateDataRowFromBooking(booking) {
+    if (booking.isValid()) {
+        const o_bookingData = o_dbBookings.update(booking._id, booking._match.getId(), booking._visitor.getId(), booking._isRedeemed, booking._verificationCode);
+        booking._id = o_bookingData.ID;
+        booking._match = o_matchManager.getById(o_bookingData.MATCH_ID);
+        booking._visitor = o_visitorManager.getById(o_bookingData.VISITOR_ID);
+        booking._isRedeemed = o_bookingData.IS_REDEEMED;
+        booking._verificationCode = o_bookingData.VERIFICATION_CODE;
+        return booking;
+    }
+    else {
+        throw new TypeError("One or more Invalid Attributes");
+    }
+}
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
@@ -95,10 +117,11 @@ function f_createBooking(match, visitor) {
 
 }
 
- 
-
 function f_getBooking(id) {
     const o_bookingData = o_dbBookings.get(id);
+    if (o_bookingData === null){
+        return null;
+    }
     return f_loadBookingFromDataRow(o_bookingData);
 }
 
@@ -115,6 +138,15 @@ function f_getBookingsForMatch(match) {
 
 }
 
+function f_getBookingForVerificationCode(verificationCode) {
+    const o_bookingData = o_dbBookings.getByVerificationCode(verificationCode);
+    if (o_bookingData === null){
+        return null;
+    }
+    return f_loadBookingFromDataRow(o_bookingData);
+}
+
 module.exports.create = f_createBooking;
 module.exports.getById = f_getBooking;
+module.exports.getByVerificationCode = f_getBookingForVerificationCode;
 module.exports.getAllForMatch = f_getBookingsForMatch;

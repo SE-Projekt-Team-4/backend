@@ -77,6 +77,18 @@ function f_getBookingsByMatchId(matchId) {
       return a;
 }
 
+function f_getBookingByVerificationCode(verificationCode) {
+    var v = null;
+
+    bookings.forEach(
+        (obj) => {
+            if(obj[4] === verificationCode) {
+                v = f_convertBooking(obj);
+            }
+          });
+    return v;
+}
+
 function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
     bookings[id] = ([id, matchId, visitorId, isRedeemed, verificationCode]);
     return f_convertBooking([id, matchId, visitorId, isRedeemed, verificationCode]);
@@ -92,7 +104,8 @@ const o_bookingQueries = {
     get : f_getBooking,
     getByMatchId : f_getBookingsByMatchId,
     update : f_updateBooking,
-    delete : f_deleteBooking
+    delete : f_deleteBooking,
+    getByVerificationCode : f_getBookingByVerificationCode
 }
 
 //-------------------------------------------------------------------------------------------------------------------

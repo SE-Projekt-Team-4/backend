@@ -45,9 +45,11 @@ async function f_requestHandler(req, res, next) {
             console.log(error);
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
-        console.log(req.manager.getResponseObject());
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        else{
+            console.log(req.manager.getResponseObject());
+            console.error(error);
+            req.manager.setError("SYSERR").sendResponse();
+        }
     }
 
 
