@@ -52,11 +52,11 @@ class Booking {
     }
 
     isValid() {
-        return o_typeHelper.test("POSITIVE_INT", this._id)
+        return o_typeHelper.test(this._id, "POSITIVE_INT", )
             && this._visitor.isValid()
             && this._match.isValid()
             && typeof this._isRedeemed === "boolean"
-            && (o_typeHelper.test("NOT_EMPTY_STRING", this._verificationCode)|| null);
+            && (o_typeHelper.test(this._verificationCode, "NOT_EMPTY_STRING")|| null);
     }
 }
 
@@ -103,6 +103,7 @@ function f_getBooking(id) {
 }
 
 function f_getBookingsForMatch(match) {
+
     const a_bookingData = o_dbBookings.getByMatchId(match.getId());
     const a_bookings = [];
 

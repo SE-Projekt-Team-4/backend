@@ -1,4 +1,4 @@
-f_createMatch = require("../../model/matchManager").create
+f_getMatch = require("../../model/matchManager").getById
 
 /**
  * @module postMatch
@@ -16,14 +16,28 @@ f_createMatch = require("../../model/matchManager").create
  */
 async function f_requestHandler(req, res, next) {
     try {
-        //console.log(req.body);
+
+        o_match = await f_getMatch(req.params.id);
+
+        if (o_match === null) {
+            req.manager.setError("NOMATCH").sendResponse();
+        }
+
         const s_opponent = req.body.opponent;
         const s_dateTimeString = req.body.dateTime;
         const n_maxSpaces = req.body.maxSpaces;
         const b_isCancelled = req.body.isCancelled;
 
-        const o_match = f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)
+        o_match.setOpponent(s_opponent);
+
+        //===========================================
+
+        o_match.setDateTimeFromString(s_dateTimeString);
+        o_match.setMaxSpaces(n_maxSpaces);
+        o_match.setIsCancelled(b_isCancelled);
+        o_match.update();
         req.manager.setData(o_match.getData()).sendResponse();
+
 
     }
     catch (error) {

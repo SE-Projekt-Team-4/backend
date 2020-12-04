@@ -11,7 +11,7 @@ const o_regex = {
     "PHONE_NUMBER": /^[+0-9]{8,15}$/
 }
 
-function f_test (tag, object) {
+function f_test (object, tag) {
     if (o_regex[tag] !== undefined){
         return o_regex[tag].test(object); 
     }
@@ -38,7 +38,7 @@ function f_test (tag, object) {
 }
 
 function f_convertToDate (dateTimeString) {
-    if (f_test("DATE_TIME_STRING", dateTimeString) === false){
+    if (f_test(dateTimeString, "DATE_TIME_STRING") === false){
         throw new TypeError("One or more Invalid Parameters");
     }
     var n_year = dateTimeString.substring(0, 4);

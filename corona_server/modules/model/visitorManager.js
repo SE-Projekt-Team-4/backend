@@ -54,15 +54,15 @@ class Visitor {
     }
 
     isValid() {
-        return o_typeHelper.test("POSITIVE_INT", this._id)
-            && o_typeHelper.test("NAME", this._fName)
-            && o_typeHelper.test("NAME", this._lName)
-            && o_typeHelper.test("CITY", this._city)
-            && o_typeHelper.test("NOT_EMPTY_STRING", this._postcode)
-            && o_typeHelper.test("NOT_EMPTY_STRING", this._street)
-            && o_typeHelper.test("HOUSE_NUMBER", this._houseNumber)
-            && o_typeHelper.test("PHONE_NUMBER", this._phoneNumber)
-            && o_typeHelper.test("E_MAIL", this._eMail);
+        return o_typeHelper.test(this._id, "POSITIVE_INT")
+            && o_typeHelper.test(this._fName, "NAME")
+            && o_typeHelper.test(this._lName, "NAME")
+            && o_typeHelper.test(this._city, "CITY")
+            && o_typeHelper.test(this._postcode, "NOT_EMPTY_STRING")
+            && o_typeHelper.test(this._street, "NOT_EMPTY_STRING")
+            && o_typeHelper.test(this._houseNumber, "HOUSE_NUMBER")
+            && o_typeHelper.test(this._phoneNumber, "PHONE_NUMBER")
+            && o_typeHelper.test(this._eMail, "E_MAIL");
     }
 }
 
@@ -85,14 +85,14 @@ function f_loadVisitorFromDataRow(visitorData) {
 // Exports ----------------------------------------------------------------------------------------------------------
 function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
 
-    if (o_typeHelper.test("NAME", fName)
-        && o_typeHelper.test("NAME", lName)
-        && o_typeHelper.test("CITY", city)
-        && o_typeHelper.test("NOT_EMPTY_STRING", postcode)
-        && o_typeHelper.test("NOT_EMPTY_STRING", street)
-        && o_typeHelper.test("HOUSE_NUMBER", houseNumber)
-        && o_typeHelper.test("PHONE_NUMBER", phoneNumber)
-        && o_typeHelper.test("E_MAIL", eMail)) {
+    if (o_typeHelper.test(fName, "NAME")
+        && o_typeHelper.test(lName, "NAME")
+        && o_typeHelper.test(city, "CITY")
+        && o_typeHelper.test(postcode, "NOT_EMPTY_STRING")
+        && o_typeHelper.test(street, "NOT_EMPTY_STRING")
+        && o_typeHelper.test(houseNumber, "HOUSE_NUMBER")
+        && o_typeHelper.test(phoneNumber, "PHONE_NUMBER")
+        && o_typeHelper.test(eMail, "E_MAIL")) {
 
         const o_visitorData = o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail);
         return f_loadVisitorFromDataRow(o_visitorData);

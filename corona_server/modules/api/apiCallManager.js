@@ -25,7 +25,7 @@ class ApiCallManager {
             },
             "NOROUTE" : {
                 status : 404,
-                message : "No route with that name exists"
+                message : "No such route"
             },
             "NOMATCH" : {
                 status : 404,

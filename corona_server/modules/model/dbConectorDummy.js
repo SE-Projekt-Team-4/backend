@@ -69,11 +69,11 @@ function f_getBookingsByMatchId(matchId) {
       });
 
     var a = [];
-      for (var v in results) {
-          a.push(
-              f_convertBooking(bookings[v])
-          );
-      }
+
+    results.forEach(
+        (result) => {
+            a.push(f_convertBooking(result));
+        });
       return a;
 }
 

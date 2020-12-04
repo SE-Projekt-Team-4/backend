@@ -13,18 +13,47 @@ class Match {
         this._isCancelled = (isCancelled === true);
     }
 
+    setOpponent(opponent) {
+        this._opponent = opponent;
+        if (this.isValid() === false) {
+            throw new TypeError("After setting Attribute, match is no longer valid")
+        }
+    }
+
+    setDateTime(dateTime) {
+        this._dateTime = dateTime;
+        if (this.isValid() === false) {
+            throw new TypeError("After setting Attribute, match is no longer valid")
+        }
+    }
+
+    setDateTimeFromString(dateTimeString) {
+        this._dateTime = o_typeHelper.convertToDate(dateTimeString);
+        if (this.isValid() === false) {
+            throw new TypeError("After setting Attribute, match is no longer valid")
+        }
+    }
+
+    setMaxSpaces(maxSpaces) {
+        this._maxSpaces = maxSpaces;
+        if (this.isValid() === false) {
+            throw new TypeError("After setting Attribute, match is no longer valid")
+        }
+    }
+
+    setIsCancelled(isCancelled) {
+        this._isCancelled = isCancelled;
+        if (this.isValid() === false) {
+            throw new TypeError("After setting Attribute, match is no longer valid")
+        }
+    }
+
     getId() {
         return this._id;
     }
 
     update() {
-        if (this.isValid()) {
-            o_dbMatches.update(this._id, this._opponent, this._dateTime, this._maxSpaces, this._isCancelled);
-            return this;
-        }
-        else {
-            throw new TypeError("One or more Invalid Attributes");
-        }
+        return f_updateDataRowFromMatch(this);
     }
 
     delete() {
@@ -60,10 +89,10 @@ class Match {
     }
 
     isValid() {
-        return o_typeHelper.test("POSITIVE_INT", this._id)
-            && o_typeHelper.test("NOT_EMPTY_STRING", this._opponent)
-            && o_typeHelper.test("DATE_TIME_STRING", this._dateTime.toISOString())
-            && o_typeHelper.test("POSITIVE_INT", this._maxSpaces)
+        return o_typeHelper.test(this._id, "POSITIVE_INT")
+            && o_typeHelper.test(this._opponent, "NOT_EMPTY_STRING")
+            && o_typeHelper.test(this._dateTime.toISOString(), "DATE_TIME_STRING")
+            && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
             && typeof this._isCancelled === "boolean";
     }
 }
@@ -83,15 +112,28 @@ function f_loadMatchFromDataRow(matchData) {
     }
 
 }
-
+function f_updateDataRowFromMatch(match) {
+    if (match.isValid()) {
+        const o_matchData = o_dbMatches.update(match._id, match._opponent, match._dateTime.toISOString(), match._maxSpaces, match._isCancelled);
+        match._id = o_matchData.ID;
+        match._opponent = o_matchData.OPPONENT;
+        match._dateTime = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
+        match._maxSpaces = o_matchData.MAX_SPACES;
+        match._isCancelled = o_matchData.IS_CANCELLED;
+        return match;
+    }
+    else {
+        throw new TypeError("One or more Invalid Attributes");
+    }
+}
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
 function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
 
-    if (o_typeHelper.test("NAME", opponent)
-        && o_typeHelper.test("DATE_TIME_STRING", dateTimeString)
-        && o_typeHelper.test("POSITIVE_INT", maxSpaces)
+    if (o_typeHelper.test(opponent, "NAME")
+        && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
+        && o_typeHelper.test(maxSpaces, "POSITIVE_INT")
         && typeof isCancelled === "boolean") {
 
         const o_date = o_typeHelper.convertToDate(dateTimeString);   
