@@ -95,17 +95,18 @@ function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
 }
 
 function f_deleteBooking(id) {
-
+    console.log("Deleted Booking Id:  " + id);
 }
+
 
 
 const o_bookingQueries = {
     create : f_createBooking,
     get : f_getBooking,
     getByMatchId : f_getBookingsByMatchId,
+    getByVerificationCode : f_getBookingByVerificationCode,
     update : f_updateBooking,
     delete : f_deleteBooking,
-    getByVerificationCode : f_getBookingByVerificationCode
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -153,6 +154,7 @@ function f_updateMatch(id, opponent, dateTime, maxSpaces, isCancelled) {
 }
 
 function f_deleteMatch(id) {
+    console.log("Deleted Match Id:  " + id);
     // TODO: NOT SUPPORTED
 }
 
@@ -166,13 +168,28 @@ function f_getNumberOfBookings(matchId) {
     return n;
 }
 
+function f_getMatchesBeforeDateTimeString(dateTimeString) {
+    var results = matches.filter(obj => {
+        return obj[2] <= dateTimeString;
+      });
+
+    var a = [];
+
+    results.forEach(
+        (result) => {
+            a.push(f_convertMatch(result));
+        });
+      return a;
+}
+
 const o_matchQueries = {
     create : f_createMatch,
     get : f_getMatch,
     getAll : f_getAllMatches,
     update : f_updateMatch,
     delete : f_deleteMatch,
-    getNumberOfBookings : f_getNumberOfBookings
+    getNumberOfBookings : f_getNumberOfBookings,
+    getMatchesBeforeDateTimeString : f_getMatchesBeforeDateTimeString
 }
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -217,6 +234,7 @@ function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, 
 }
 
 function f_deleteVisitor(id) {
+    console.log("Deleted Visitor Id:  " + id);
     // TODO: Implement
 }
 

@@ -1,7 +1,7 @@
-f_getAllMatches = require("../../model/matchManager").getAll
+f_getMatchesBefore = require("../../model/matchManager").getBefore
 
 /**
- * @module getAllMatches
+ * @module deleteBookings4Weeks
  * @version 0.0.1
  */
 
@@ -14,16 +14,31 @@ f_getAllMatches = require("../../model/matchManager").getAll
  * @param {Express.Request} req A request based on the Express framework
  * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
  */
+
+const BOOKINGS_SAVE_DURATION = 28 //Days  -- 4 Weeks
+
 async function f_requestHandler(req, res, next) {
     try {
-        a_matches = f_getAllMatches();
-        a_matchdata = [];
+        o_date = new Date(Date.now());
+        o_date.setDate(o_date.getDate() - BOOKINGS_SAVE_DURATION);
+        const a_matches = f_getMatchesBefore(o_date);
+        
+        var a_bookings = [];
         a_matches.forEach(
             (o_match) => {
-                a_matchdata.push(o_match.getData())
+                a_bookings = a_bookings.concat(o_match.getBookings());
             }
         );
-        req.manager.setData(a_matchdata).sendResponse();   
+
+        var a_bookingData = [];
+        a_bookings.forEach(
+            (o_booking) => {
+                a_bookingData.push(o_booking.getData());
+                o_booking.delete(true);
+            }
+        );
+
+        req.manager.setData(a_bookingData).sendResponse();   
     }
     catch (error) {
         console.log(req.manager.getResponseObject());

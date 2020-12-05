@@ -5,10 +5,10 @@ const o_typeHelper = require("../typeHelper");
 
 class Match {
 
-    constructor(id, opponent, dateTime, maxSpaces, isCancelled) {
+    constructor(id, opponent, date, maxSpaces, isCancelled) {
         this._id = id;
         this._opponent = opponent;
-        this._dateTime = dateTime;
+        this._date = date;
         this._maxSpaces = maxSpaces;
         this._isCancelled = (isCancelled === true);
     }
@@ -20,15 +20,15 @@ class Match {
         }
     }
 
-    setDateTime(dateTime) {
-        this._dateTime = dateTime;
+    setDateTime(date) {
+        this._date = date;
         if (this.isValid() === false) {
             throw new TypeError("After setting Attribute, match is no longer valid")
         }
     }
 
     setDateTimeFromString(dateTimeString) {
-        this._dateTime = o_typeHelper.convertToDate(dateTimeString);
+        this._date = o_typeHelper.convertToDate(dateTimeString);
         if (this.isValid() === false) {
             throw new TypeError("After setting Attribute, match is no longer valid")
         }
@@ -64,7 +64,7 @@ class Match {
         return {
             id: this._id,
             opponent: this._opponent,
-            dateTime: this._dateTime.toISOString(),
+            date: this._date.toISOString(),
             maxSpaces: this._maxSpaces,
             isCancelled: this._isCancelled,
             freeSpaces: this.getFreeSpaces()
@@ -91,7 +91,7 @@ class Match {
     isValid() {
         return o_typeHelper.test(this._id, "POSITIVE_INT")
             && o_typeHelper.test(this._opponent, "NOT_EMPTY_STRING")
-            && o_typeHelper.test(this._dateTime.toISOString(), "DATE_TIME_STRING")
+            && o_typeHelper.test(this._date.toISOString(), "DATE_TIME_STRING")
             && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
             && typeof this._isCancelled === "boolean";
     }
@@ -114,10 +114,10 @@ function f_loadMatchFromDataRow(matchData) {
 }
 function f_updateDataRowFromMatch(match) {
     if (match.isValid()) {
-        const o_matchData = o_dbMatches.update(match._id, match._opponent, match._dateTime.toISOString(), match._maxSpaces, match._isCancelled);
+        const o_matchData = o_dbMatches.update(match._id, match._opponent, match._date.toISOString(), match._maxSpaces, match._isCancelled);
         match._id = o_matchData.ID;
         match._opponent = o_matchData.OPPONENT;
-        match._dateTime = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
+        match._date = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
         match._maxSpaces = o_matchData.MAX_SPACES;
         match._isCancelled = o_matchData.IS_CANCELLED;
         return match;
@@ -165,7 +165,19 @@ function f_getAllMatches() {
     return a_matches;
 }
 
+function f_getMatchesBefore(date) {
+    const a_matchData = o_dbMatches.getMatchesBeforeDateTimeString(date.toISOString());
+    const a_matches = [];
+
+    a_matchData.forEach(
+        (o_matchData) => {
+            a_matches.push(f_loadMatchFromDataRow(o_matchData));
+        });
+    return a_matches;
+}
+
 
 module.exports.create = f_createMatch;
 module.exports.getById = f_getMatch;
 module.exports.getAll = f_getAllMatches;
+module.exports.getBefore = f_getMatchesBefore;

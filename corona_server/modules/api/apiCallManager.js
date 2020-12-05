@@ -19,6 +19,10 @@ class ApiCallManager {
                 status : 500,
                 message : "500 - Internal Server Error"
             },
+            "NOAUTH" : {
+                status : 401,
+                message : "401 - Not Authorized"
+            },
             "JSONPARSE" : {
                 status : 400,
                 message : "There was a JSON Parsing Error"

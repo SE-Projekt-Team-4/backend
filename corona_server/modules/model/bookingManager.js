@@ -25,7 +25,10 @@ class Booking {
         return this;
     }
 
-    delete() {
+    delete(isToDeleteVisitor) {
+        if (isToDeleteVisitor) {
+            this.getVisitor().delete();
+        }
         o_dbBookings.delete(this._id);
     }
 
