@@ -68,6 +68,10 @@ function f_handle404(req, res, next) {
   req.manager.setError("NOROUTE").sendResponse();
 }
 
+function f_return200(req, res, next) {
+  req.manager.sendStatus(200);
+}
+
 function f_handleApiCallManagerErrors(err, req, res, next) {
   console.error(err);
   res.status(500);
@@ -119,7 +123,7 @@ o_router.route("/matches/:id/visitors")
 o_router.route("/isAdmin")
   .options(f_handleCorsPrefetchRequests)
   .post(f_requireBasicAuth)
-  .get(o_isAdmin.handleRequest);
+  .get(f_return200);
 
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)
