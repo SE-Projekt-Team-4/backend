@@ -176,8 +176,18 @@ function f_getMatchesBefore(date) {
     return a_matches;
 }
 
+function f_getFirstMatchAfter(date) {
+    console.log("test");
+    const o_matchData = o_dbMatches.getMatchFirstAfterDateTimeString(date.toISOString());
+    if (o_matchData === null) {
+        return null;
+    }
+    return f_loadMatchFromDataRow(o_matchData);
+}
+
 
 module.exports.create = f_createMatch;
 module.exports.getById = f_getMatch;
 module.exports.getAll = f_getAllMatches;
 module.exports.getBefore = f_getMatchesBefore;
+module,exports.getFirstAfter = f_getFirstMatchAfter;

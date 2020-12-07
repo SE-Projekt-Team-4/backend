@@ -33,7 +33,7 @@ class ApiCallManager {
             },
             "NOMATCH" : {
                 status : 404,
-                message : "No match with that Id exists"
+                message : "No match found"
             },
             "REDEEMNOMATCH" : {
                 status : 404,

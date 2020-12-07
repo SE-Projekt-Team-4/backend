@@ -13,6 +13,7 @@ const o_visitorsByMatchId = require("./routes/getVisitorsForMatches");
 const o_putMatch = require("./routes/putMatch");
 const o_redeemBooking = require("./routes/redeemBooking");
 const o_deleteBookingsOverSaveDuration = require("./routes/deleteBookingsOverSaveDuration");
+const o_nextMatch = require("./routes/getNextMatch");
 const ApiCallData = require("./apiCallManager");
 
 // HANDLER =================================================================================================================
@@ -114,6 +115,10 @@ o_router.route("/matches/:id")
   .options(f_handleCorsPrefetchRequests)
   .get(o_matchById.handleRequest)
   .put(o_putMatch.handleRequest);
+
+o_router.route("/nextMatch")
+  .options(f_handleCorsPrefetchRequests)
+  .get(o_nextMatch.handleRequest);
 
 o_router.route("/matches/:id/visitors")
   .options(f_handleCorsPrefetchRequests)

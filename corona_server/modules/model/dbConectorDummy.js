@@ -182,6 +182,23 @@ function f_getMatchesBeforeDateTimeString(dateTimeString) {
       return a;
 }
 
+function f_getMatchFirstAfterDateTimeString(dateTimeString) {
+    
+    tmp = null;
+
+    matches.forEach(
+        (match) => {
+            if((match[2] >= dateTimeString) && (tmp === null ||  match[2] <= tmp[2]))
+            tmp = match;
+        });
+    if (tmp) {        
+        return f_convertMatch(tmp);
+    }
+    else {
+        return null;
+    }
+}
+
 const o_matchQueries = {
     create : f_createMatch,
     get : f_getMatch,
@@ -189,7 +206,8 @@ const o_matchQueries = {
     update : f_updateMatch,
     delete : f_deleteMatch,
     getNumberOfBookings : f_getNumberOfBookings,
-    getMatchesBeforeDateTimeString : f_getMatchesBeforeDateTimeString
+    getMatchesBeforeDateTimeString : f_getMatchesBeforeDateTimeString,
+    getMatchFirstAfterDateTimeString : f_getMatchFirstAfterDateTimeString
 }
 //-------------------------------------------------------------------------------------------------------------------
 
