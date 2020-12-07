@@ -70,7 +70,7 @@ function f_handle404(req, res, next) {
 }
 
 function f_return200(req, res, next) {
-  req.manager.sendStatus(200);
+  req.manager.setData("Credentials are correct!").sendResponse();
 }
 
 function f_handleApiCallManagerErrors(err, req, res, next) {
@@ -127,7 +127,7 @@ o_router.route("/matches/:id/visitors")
 
 o_router.route("/isAdmin")
   .options(f_handleCorsPrefetchRequests)
-  .post(f_requireBasicAuth)
+  .get(f_requireBasicAuth)
   .get(f_return200);
 
 o_router.route("/bookings")
