@@ -116,6 +116,11 @@ o_router.route("/matches/:id/visitors")
   .get(f_requireBasicAuth)
   .get(o_visitorsByMatchId.handleRequest);
 
+o_router.route("/isAdmin")
+  .options(f_handleCorsPrefetchRequests)
+  .post(f_requireBasicAuth)
+  .get(o_isAdmin.handleRequest);
+
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)
   .post(o_postBooking.handleRequest);

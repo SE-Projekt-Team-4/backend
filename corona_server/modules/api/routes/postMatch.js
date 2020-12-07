@@ -18,7 +18,7 @@ async function f_requestHandler(req, res, next) {
     try {
         //console.log(req.body);
         const s_opponent = req.body.opponent;
-        const s_dateTimeString = req.body.dateTime;
+        const s_dateTimeString = req.body.date;
         const n_maxSpaces = req.body.maxSpaces;
         const b_isCancelled = req.body.isCancelled;
 
