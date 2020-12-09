@@ -20,7 +20,7 @@ async function f_requestHandler(req, res, next) {
         a_matchdata = [];
         a_matches.forEach(
             (o_match) => {
-                a_matchdata.push(o_match.getData())
+                a_matchdata.push(o_match.getInfo())
             }
         );
         req.manager.setData(a_matchdata).sendResponse();   

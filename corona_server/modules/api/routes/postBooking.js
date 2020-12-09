@@ -1,6 +1,7 @@
 f_createBooking = require("../../model/bookingManager").create
 f_createVisitor = require("../../model/visitorManager").create
 f_getMatch = require("../../model/matchManager").getById
+f_sendMail = require("../../mailHelper").sendConfirmationMail
 
 /**
  * @module postBooking
@@ -44,18 +45,25 @@ async function f_requestHandler(req, res, next) {
                 req.manager.setError("BOOKNOSPACE").sendResponse();
             }
             else {
-                const o_booking = f_createBooking(o_match, o_visitor);
-                req.manager.setData(o_booking.getData()).sendResponse();
+                const o_booking = await f_createBooking(o_match, o_visitor);
+
+                var o_bookInfo = o_booking.getInfo();
+
+                await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
+                    o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
+                req.manager.setData(o_bookInfo).sendResponse();
             }
         }
-
     }
     catch (error) {
+        if (o_booking) {
+            o_booking.delete(true); // D.I.Y. Rollback -> Booking is deleted (not undone)
+        }
         if (error instanceof TypeError) {
             console.log(error);
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
-        else{
+        else {
             console.log(req.manager.getResponseObject());
             console.error(error);
             req.manager.setError("SYSERR").sendResponse();

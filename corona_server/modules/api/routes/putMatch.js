@@ -36,7 +36,7 @@ async function f_requestHandler(req, res, next) {
         o_match.setMaxSpaces(n_maxSpaces);
         o_match.setIsCancelled(b_isCancelled);
         o_match.update();
-        req.manager.setData(o_match.getData()).sendResponse();
+        req.manager.setData(o_match.getInfo()).sendResponse();
 
 
     }

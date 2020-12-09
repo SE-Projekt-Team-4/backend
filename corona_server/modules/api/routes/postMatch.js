@@ -23,7 +23,7 @@ async function f_requestHandler(req, res, next) {
         const b_isCancelled = req.body.isCancelled;
 
         const o_match = f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)
-        req.manager.setData(o_match.getData()).sendResponse();
+        req.manager.setData(o_match.getInfo()).sendResponse();
 
     }
     catch (error) {

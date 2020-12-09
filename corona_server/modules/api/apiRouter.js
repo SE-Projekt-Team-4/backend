@@ -4,17 +4,24 @@
  */
 const Express = require("express");
 const o_router = Express.Router();
-const o_allMatches = require("./routes/getAllMatches");
-const o_matchById = require("./routes/getMatchById");
-const o_postBooking = require("./routes/postBooking");
+const ApiCallManager = require("./apiCallManager");
+
+const o_getMatches = require("./routes/getAllMatches");
+const o_getMatchById = require("./routes/getMatchById");
+const o_getMatchNext = require("./routes/getNextMatch");
 const o_postMatch = require("./routes/postMatch");
-const o_allVisitors = require("./routes/getAllVisitors");
-const o_visitorsByMatchId = require("./routes/getVisitorsForMatches");
 const o_putMatch = require("./routes/putMatch");
+
+
+const o_getBookings = require("./routes/getAllBookings");
+const o_getBookingsForMatchId = require("./routes/getBookingsForMatch");
+const o_postBooking = require("./routes/postBooking");
 const o_redeemBooking = require("./routes/redeemBooking");
 const o_deleteBookingsOverSaveDuration = require("./routes/deleteBookingsOverSaveDuration");
-const o_nextMatch = require("./routes/getNextMatch");
-const ApiCallData = require("./apiCallManager");
+
+const o_getActualVisitors = require("./routes/getAllActualVisitors");
+const o_getActualVisitorsByMatchId = require("./routes/getActualVisitorsForMatches");
+
 
 // HANDLER =================================================================================================================
 function f_requireBasicAuth(req, res, next) {
@@ -55,7 +62,7 @@ function f_handleCorsPrefetchRequests(req, res, next) {
 
 // Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
 function f_appendApiCallManagerToReq(req, res, next) {
-  req.manager = new ApiCallData(req, res);
+  req.manager = new ApiCallManager(req, res);
   console.log(req.manager._callData);
   next();
 }
@@ -70,7 +77,7 @@ function f_handle404(req, res, next) {
 }
 
 function f_return200(req, res, next) {
-  req.manager.setData("Credentials are correct!").sendResponse();
+  req.manager.setData("Success").sendResponse();
 }
 
 function f_handleApiCallManagerErrors(err, req, res, next) {
@@ -90,61 +97,78 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
 
 // ROUTES ==================================================================================================================
 
-// Add CORS headers and answer PreflightRequests
+
 o_router.use(
+  // Allow all relevant types of CORS
   f_allowCors,
+  // Add custom utilities to Express request Object
   f_appendApiCallManagerToReq,
+  // handle Errors during first 2 Steps
   f_handleApiCallManagerErrors,
+  // Parse body as json
   Express.json(),
+  // handle Parse Errors
   f_handleParseErrors
 );
 
 
 o_router.route("/matches")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_allMatches.handleRequest)
+  .get(o_getMatches.handleRequest) // Get all natches
   .post(f_requireBasicAuth)
-  .post(o_postMatch.handleRequest);
-
-o_router.route("/visitors")
-  .options(f_handleCorsPrefetchRequests)
-  .get(f_requireBasicAuth)
-  .get(o_allVisitors.handleRequest);
-
-o_router.route("/matches/:id")
-  .options(f_handleCorsPrefetchRequests)
-  .get(o_matchById.handleRequest)
-  .put(o_putMatch.handleRequest);
+  .post(o_postMatch.handleRequest); // Create a new natch
 
 o_router.route("/nextMatch")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_nextMatch.handleRequest);
+  .get(o_getMatchNext.handleRequest); // Get the next natch that is going to happen
+
+o_router.route("/matches/:id")
+  .options(f_handleCorsPrefetchRequests)
+  .get(o_getMatchById.handleRequest) // Get match with given id
+  .put(f_requireBasicAuth) 
+  .put(o_putMatch.handleRequest); // Update match with given id
 
 o_router.route("/matches/:id/visitors")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_visitorsByMatchId.handleRequest);
+  .get(o_getActualVisitorsByMatchId.handleRequest); // Get visitors that checked in for match
 
-o_router.route("/isAdmin")
+o_router.route("/matches/:id/bookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(f_return200);
+  .get(o_getBookingsForMatchId.handleRequest); // Get bookings for match
+
+
 
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)
-  .post(o_postBooking.handleRequest);
+  .post(o_postBooking.handleRequest)
+  .get(f_requireBasicAuth)
+  .get(o_getBookings.handleRequest); // Get all bookings
 
 o_router.route("/bookings/redeem")
   .options(f_handleCorsPrefetchRequests)
   .post(f_requireBasicAuth)
-  .post(o_redeemBooking.handleRequest);
+  .post(o_redeemBooking.handleRequest); // Redeem a booking code
 
 o_router.route("/bookings/overdue")
   .options(f_handleCorsPrefetchRequests)
   .delete(f_requireBasicAuth)
-  .delete(o_deleteBookingsOverSaveDuration.handleRequest);
+  .delete(o_deleteBookingsOverSaveDuration.handleRequest); // Delete booking and visitor data that is old
+
+
+o_router.route("/visitors")
+  .options(f_handleCorsPrefetchRequests)
+  .get(f_requireBasicAuth)
+  .get(o_getActualVisitors.handleRequest); // get all Visitors that checked in
+
+// Returns 200 when basic auth passes 
+o_router.route("/isAdmin")
+  .options(f_handleCorsPrefetchRequests)
+  .get(f_requireBasicAuth)
+  .get(f_return200); // return 200
 
 // Called last ( only if no other route matches)
-o_router.use(f_handle404);
+o_router.use(f_handle404); // return 404
 
 module.exports = o_router;

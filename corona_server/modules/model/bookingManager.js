@@ -47,14 +47,18 @@ class Booking {
         }
     }
 
-    getData() {
+    getInfo() {
         return {
             id: this._id,
-            match: this._match.getData(),
-            visitor: this._visitor.getData(),
+            match: this._match.getInfo(),
+            visitor: this._visitor.getInfo(),
             isRedeemed: this._isRedeemed,
             verificationCode: this._verificationCode
         }
+    }
+
+    getIsRedeemed() {
+        return this._isRedeemed;
     }
 
     getVisitor() {
@@ -141,6 +145,19 @@ function f_getBookingsForMatch(match) {
 
 }
 
+function f_getAllBookings() {
+
+    const a_bookingData = o_dbBookings.getAll();
+    const a_bookings = [];
+
+    a_bookingData.forEach(
+        (o_bookingData) => {
+            a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
+        });
+    return a_bookings;
+
+}
+
 function f_getBookingForVerificationCode(verificationCode) {
     const o_bookingData = o_dbBookings.getByVerificationCode(verificationCode);
     if (o_bookingData === null){
@@ -152,4 +169,5 @@ function f_getBookingForVerificationCode(verificationCode) {
 module.exports.create = f_createBooking;
 module.exports.getById = f_getBooking;
 module.exports.getByVerificationCode = f_getBookingForVerificationCode;
+module.exports.getAll = f_getAllBookings;
 module.exports.getAllForMatch = f_getBookingsForMatch;

@@ -35,7 +35,7 @@ class Visitor {
         o_dbVisitors.delete(this._id);
     }
 
-    getData() {
+    getInfo() {
         return {
             id: this._id,
             fName: this._fName,
@@ -107,8 +107,9 @@ function f_getVisitor(id) {
     return f_loadVisitorFromDataRow(o_visitorData);
 }
 
-function f_getAllVisitors() {
-    const a_visitorData = o_dbVisitors.getAll();
+
+function f_getAllActualVisitors() {
+    const a_visitorData = o_dbVisitors.getAllRedeemed();
     const a_visitors = [];
 
     a_visitorData.forEach(
@@ -118,6 +119,19 @@ function f_getAllVisitors() {
     return a_visitors;
 }
 
+function f_getActualVisitorsForMatch() {
+    const a_visitorData = o_dbVisitors.getAllRedeemed();
+    const a_visitors = [];
+
+    a_visitorData.forEach(
+        (o_visitorData) => {
+            a_visitors.push(f_loadVisitorFromDataRow(o_visitorData));
+        });
+    return a_visitors;
+}
+
+
 module.exports.create = f_createVisitor;
 module.exports.getById = f_getVisitor;
-module.exports.getAll = f_getAllVisitors;
+module.exports.getActual = f_getAllActualVisitors;
+module.exports.getActualForMatch = f_getActualVisitorsForMatch;

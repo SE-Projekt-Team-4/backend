@@ -1,7 +1,7 @@
-f_getBookingByVerification = require("../../model/bookingManager").getByVerificationCode
+f_getMatch = require("../../model/matchManager").getById
 
 /**
- * @module redeemBooking
+ * @module getVisitorsForMatch
  * @version 0.0.1
  */
 
@@ -16,21 +16,21 @@ f_getBookingByVerification = require("../../model/bookingManager").getByVerifica
  */
 async function f_requestHandler(req, res, next) {
     try {
-        //console.log(req.body);
-        const s_verificationCode = req.body.verificationCode;
-        o_booking = f_getBookingByVerification(s_verificationCode);
+        o_match = await f_getMatch(req.params.id);
 
-        if (o_booking != null){
-            if (o_booking.redeem() === true){
-                req.manager.setData(o_booking.getInfo()).sendResponse();
-            }
-            else {
-                req.manager.setError("ALREADYREDEEMED", o_booking.getInfo()).sendResponse();
-            }
+        if (o_match === null) {
+            req.manager.setError("NOMATCH").sendResponse();
         }
+
         else {
-            req.manager.setError("REDEEMNOMATCH").sendResponse();            
-        }   
+            a_visitorData = [];
+            (await o_match.getActualVisitors()).forEach(
+                (o_visitor) => {
+                    a_visitorData.push(o_visitor.getInfo())
+                }
+            );
+            req.manager.setData(a_visitorData).sendResponse();
+        }
 
 
     }
@@ -39,7 +39,6 @@ async function f_requestHandler(req, res, next) {
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }
-
 
 }
 

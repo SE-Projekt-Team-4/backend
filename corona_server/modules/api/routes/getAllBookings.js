@@ -1,7 +1,7 @@
-f_getBookingByVerification = require("../../model/bookingManager").getByVerificationCode
+f_getAllBookings = require("../../model/bookingManager").getAll
 
 /**
- * @module redeemBooking
+ * @module getAllBookings
  * @version 0.0.1
  */
 
@@ -16,30 +16,20 @@ f_getBookingByVerification = require("../../model/bookingManager").getByVerifica
  */
 async function f_requestHandler(req, res, next) {
     try {
-        //console.log(req.body);
-        const s_verificationCode = req.body.verificationCode;
-        o_booking = f_getBookingByVerification(s_verificationCode);
-
-        if (o_booking != null){
-            if (o_booking.redeem() === true){
-                req.manager.setData(o_booking.getInfo()).sendResponse();
+        a_bookings = f_getAllBookings();
+        a_bookingData = [];
+        a_bookings.forEach(
+            (o_booking) => {
+                a_bookingData.push(o_booking.getInfo())
             }
-            else {
-                req.manager.setError("ALREADYREDEEMED", o_booking.getInfo()).sendResponse();
-            }
-        }
-        else {
-            req.manager.setError("REDEEMNOMATCH").sendResponse();            
-        }   
-
-
+        );
+        req.manager.setData(a_bookingData).sendResponse();   
     }
     catch (error) {
         console.log(req.manager.getResponseObject());
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }
-
 
 }
 

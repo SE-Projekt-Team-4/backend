@@ -1,7 +1,7 @@
 f_getMatch = require("../../model/matchManager").getById
 
 /**
- * @module getVisitorsForMatch
+ * @module getBookingsForMatch
  * @version 0.0.1
  */
 
@@ -23,13 +23,13 @@ async function f_requestHandler(req, res, next) {
         }
 
         else {
-            a_visitorData = [];
-            (await o_match.getVisitors()).forEach(
-                (o_visitor) => {
-                    a_visitorData.push(o_visitor.getData())
+            a_bookingData = [];
+            (await o_match.getBookings()).forEach(
+                (o_booking) => {
+                    a_bookingData.push(o_booking.getInfo())
                 }
             );
-            req.manager.setData(a_visitorData).sendResponse();
+            req.manager.setData(a_bookingData).sendResponse();
         }
 
 

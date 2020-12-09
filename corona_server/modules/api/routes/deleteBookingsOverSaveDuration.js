@@ -33,7 +33,7 @@ async function f_requestHandler(req, res, next) {
         var a_bookingData = [];
         a_bookings.forEach(
             (o_booking) => {
-                a_bookingData.push(o_booking.getData());
+                a_bookingData.push(o_booking.getInfo());
                 o_booking.delete(true);
             }
         );

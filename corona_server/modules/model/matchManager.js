@@ -60,7 +60,7 @@ class Match {
         o_dbMatches.delete(this._id);
     }
 
-    getData() {
+    getInfo() {
         return {
             id: this._id,
             opponent: this._opponent,
@@ -75,13 +75,8 @@ class Match {
         return o_bookingManager.getAllForMatch(this);
     }
 
-    getVisitors() {
-        var a_visitors = [];
-        this.getBookings().forEach(
-            (o_booking) => {
-                a_visitors.push(o_booking.getVisitor());
-            });
-        return a_visitors;
+    getActualVisitors() {
+        return o_visitorManager.getActualForMatch(this);
     }
 
     getFreeSpaces() {

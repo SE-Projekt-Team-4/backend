@@ -19,7 +19,7 @@ async function f_requestHandler(req, res, next) {
         o_match = await f_getMatch(req.params.id);
 
         if (o_match != null){
-            req.manager.setData(o_match.getData()).sendResponse();
+            req.manager.setData(o_match.getInfo()).sendResponse();
         }
         else {
             req.manager.setError("NOMATCH").sendResponse();            

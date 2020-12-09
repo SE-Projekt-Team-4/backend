@@ -1,4 +1,4 @@
-f_getAllVisitors = require("../../model/visitorManager").getAll
+f_getActualVisitors = require("../../model/visitorManager").getActual
 
 /**
  * @module getAllVisitors
@@ -16,11 +16,11 @@ f_getAllVisitors = require("../../model/visitorManager").getAll
  */
 async function f_requestHandler(req, res, next) {
     try {
-        a_visitors = await f_getAllVisitors();
+        a_visitors = await f_getActualVisitors();
         a_visitorData = [];
         a_visitors.forEach(
             (o_visitor) => {
-                a_visitorData.push(o_visitor.getData())
+                a_visitorData.push(o_visitor.getInfo())
             }
         );
         req.manager.setData(a_visitorData).sendResponse();   
