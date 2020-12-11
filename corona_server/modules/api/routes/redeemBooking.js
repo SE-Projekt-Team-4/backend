@@ -18,10 +18,10 @@ async function f_requestHandler(req, res, next) {
     try {
         //console.log(req.body);
         const s_verificationCode = req.body.verificationCode;
-        o_booking = f_getBookingByVerification(s_verificationCode);
+        o_booking = await f_getBookingByVerification(s_verificationCode);
 
-        if (o_booking != null){
-            if (o_booking.redeem() === true){
+        if (o_booking !== null){
+            if ((await o_booking.redeem()) === true){
                 req.manager.setData(o_booking.getInfo()).sendResponse();
             }
             else {
@@ -35,7 +35,7 @@ async function f_requestHandler(req, res, next) {
 
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SYSERR: ", req.manager._callData);
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }

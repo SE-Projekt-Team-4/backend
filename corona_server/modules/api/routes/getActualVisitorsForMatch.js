@@ -23,10 +23,10 @@ async function f_requestHandler(req, res, next) {
         }
 
         else {
-            a_visitorData = [];
-            (await o_match.getActualVisitors()).forEach(
-                (o_visitor) => {
-                    a_visitorData.push(o_visitor.getInfo())
+            a_visitors = await o_match.getActualVisitors();
+            a_visitorData = a_visitors.map(
+                (visitor) => {
+                    return visitor.getInfo();
                 }
             );
             req.manager.setData(a_visitorData).sendResponse();
@@ -35,7 +35,7 @@ async function f_requestHandler(req, res, next) {
 
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SERVER ERROR: " + req.manager.getResponseObject());
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }

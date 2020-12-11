@@ -35,7 +35,7 @@ async function f_requestHandler(req, res, next) {
         o_match.setDateTimeFromString(s_dateTimeString);
         o_match.setMaxSpaces(n_maxSpaces);
         o_match.setIsCancelled(b_isCancelled);
-        o_match.update();
+        await o_match.update();
         req.manager.setData(o_match.getInfo()).sendResponse();
 
 
@@ -46,7 +46,7 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
         else{
-            console.log(req.manager.getResponseObject());
+            console.log("SYSERR: ", req.manager._callData);
             console.error(error);
             req.manager.setError("SYSERR").sendResponse();
         }

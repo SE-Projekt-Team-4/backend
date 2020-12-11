@@ -1,6 +1,6 @@
 const o_visitorManager = require("./visitorManager");
 const o_matchManager = require("./matchManager");
-const o_dbBookings = require("./dbConectorDummy").bookingQueries;
+const o_dbBookings = require("../../database/DBConnector_Final").bookingQueries;
 const o_typeHelper = require("../typeHelper");
 
 class Booking {
@@ -20,33 +20,6 @@ class Booking {
         this._verificationCode = verificationCode;
     }
 
-    update() {
-        f_updateDataRowFromBooking(this);
-        return this;
-    }
-
-    delete(isToDeleteVisitor) {
-        if (isToDeleteVisitor) {
-            this.getVisitor().delete();
-        }
-        o_dbBookings.delete(this._id);
-    }
-
-    getVerificationCode() {
-        return this._verificationCode;
-    }
-
-    redeem() {
-        if (this._isRedeemed === true){
-            return false;
-        }
-        else {
-            this._isRedeemed = true;
-            this.update();
-            return true;
-        }
-    }
-
     getInfo() {
         return {
             id: this._id,
@@ -55,6 +28,10 @@ class Booking {
             isRedeemed: this._isRedeemed,
             verificationCode: this._verificationCode
         }
+    }
+
+    getVerificationCode() {
+        return this._verificationCode;
     }
 
     getIsRedeemed() {
@@ -66,20 +43,44 @@ class Booking {
     }
 
     isValid() {
-        return o_typeHelper.test(this._id, "POSITIVE_INT", )
+        return o_typeHelper.test(this._id, "POSITIVE_INT",)
             && this._visitor.isValid()
             && this._match.isValid()
             && typeof this._isRedeemed === "boolean"
-            && (o_typeHelper.test(this._verificationCode, "NOT_EMPTY_STRING")|| null);
+            && (o_typeHelper.test(this._verificationCode, "NOT_EMPTY_STRING") || null);
     }
+
+    async update() {
+        f_updateDataRowFromBooking(this);
+        return this;
+    }
+
+    async delete(isToDeleteVisitor) {
+        if (isToDeleteVisitor) {
+            await this.getVisitor().delete(); // Wait for error so we dont delete booking if visitor was not deleted
+        }
+        return o_dbBookings.delete(this._id);
+    }
+
+    async redeem() {
+        if (this._isRedeemed === true) {
+            return false;
+        }
+        else {
+            this._isRedeemed = true;
+            await this.update(); // Wait for Errors so we dont return true when update fails
+            return true;
+        }
+    }
+
 }
 
 // Private Section --------------------------------------------------------------------------------------------------
-function f_loadBookingFromDataRow(bookingData) {
+async function f_loadBookingFromDataRow(bookingData) {
     const o_match = o_matchManager.getById(bookingData.MATCH_ID);
     const o_visitor = o_visitorManager.getById(bookingData.VISITOR_ID);
-    const o_booking = new Booking(bookingData.ID, o_match, o_visitor, bookingData.IS_REDEEMED, bookingData.VERIFICATION_CODE);
- 
+    const o_booking = new Booking(bookingData.ID, await o_match, await o_visitor, bookingData.IS_REDEEMED, bookingData.VERIFICATION_CODE);
+
     if (o_booking.isValid()) {
         return o_booking;
     }
@@ -88,82 +89,83 @@ function f_loadBookingFromDataRow(bookingData) {
     }
 }
 
-function f_updateDataRowFromBooking(booking) {
-    if (booking.isValid()) {
-        const o_bookingData = o_dbBookings.update(booking._id, booking._match.getId(), booking._visitor.getId(), booking._isRedeemed, booking._verificationCode);
-        booking._id = o_bookingData.ID;
-        booking._match = o_matchManager.getById(o_bookingData.MATCH_ID);
-        booking._visitor = o_visitorManager.getById(o_bookingData.VISITOR_ID);
-        booking._isRedeemed = o_bookingData.IS_REDEEMED;
-        booking._verificationCode = o_bookingData.VERIFICATION_CODE;
-        return booking;
-    }
-    else {
+async function f_updateDataRowFromBooking(booking) {
+    if (!booking.isValid()) {
         throw new TypeError("One or more Invalid Attributes");
     }
+    const o_bookingData = await o_dbBookings.update(booking._id, booking._match.getId(), booking._visitor.getId(), booking._isRedeemed, booking._verificationCode);
+    booking._id = o_bookingData.ID;
+    booking._match = o_matchManager.getById(o_bookingData.MATCH_ID);
+    booking._visitor = o_visitorManager.getById(o_bookingData.VISITOR_ID);
+    booking._isRedeemed = o_bookingData.IS_REDEEMED;
+    booking._verificationCode = o_bookingData.VERIFICATION_CODE;
+    return booking;
+
 }
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
-function f_createBooking(match, visitor) {
-    
+async function f_createBooking(match, visitor) {
+    try {
         if (!match.isValid() || !visitor.isValid()) {
             throw new TypeError("One or more Invalid Parameters");
         }
-
-
-    const o_bookingData = o_dbBookings.create(match.getId(), visitor.getId(), false, null);
-
-    const o_booking = f_loadBookingFromDataRow(o_bookingData);
-
-    o_booking._verificationCode = Booking._generateVerificationCode(o_booking._id);
-
-    o_booking.update();
-
-    return o_booking;
-
+    
+    
+        const o_bookingData = await o_dbBookings.create(match.getId(), visitor.getId(), false, null);
+    
+        const o_booking = await f_loadBookingFromDataRow(o_bookingData);
+    
+        o_booking._verificationCode = Booking._generateVerificationCode(o_booking._id);
+    
+        o_booking.update();
+    
+        return o_booking;
+    }
+    catch(err) { 
+        throw err; 
+    }
 }
 
-function f_getBooking(id) {
-    const o_bookingData = o_dbBookings.get(id);
-    if (o_bookingData === null){
+async function f_getBooking(id) {
+    const o_bookingData = await o_dbBookings.get(id);
+    if (o_bookingData === null) {
         return null;
     }
     return f_loadBookingFromDataRow(o_bookingData);
 }
 
-function f_getBookingsForMatch(match) {
+async function f_getBookingsForMatch(match) {
 
-    const a_bookingData = o_dbBookings.getByMatchId(match.getId());
-    const a_bookings = [];
+    const a_bookingData = await o_dbBookings.getByMatchId(match.getId());
 
-    a_bookingData.forEach(
-        (o_bookingData) => {
-            a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
-        });
-    return a_bookings;
-
+    return Promise.all(
+        a_bookingData.map(
+            async (bookingData) => {
+                return f_loadBookingFromDataRow(bookingData);
+            }
+        )
+    );
 }
 
-function f_getAllBookings() {
+async function f_getAllBookings() {
 
-    const a_bookingData = o_dbBookings.getAll();
-    const a_bookings = [];
+    const a_bookingData = await o_dbBookings.getAll();
 
-    a_bookingData.forEach(
-        (o_bookingData) => {
-            a_bookings.push(f_loadBookingFromDataRow(o_bookingData));
-        });
-    return a_bookings;
-
+    return Promise.all(
+        a_bookingData.map(
+            async (bookingData) => {
+                return f_loadBookingFromDataRow(bookingData);
+            }
+        )
+    );
 }
-
-function f_getBookingForVerificationCode(verificationCode) {
-    const o_bookingData = o_dbBookings.getByVerificationCode(verificationCode);
-    if (o_bookingData === null){
+async function f_getBookingForVerificationCode(verificationCode) {
+    const o_bookingData = await o_dbBookings.getByVerificationCode(verificationCode);
+    if (o_bookingData === null) {
         return null;
     }
-    return f_loadBookingFromDataRow(o_bookingData);
+    return await f_loadBookingFromDataRow(o_bookingData);
 }
 
 module.exports.create = f_createBooking;

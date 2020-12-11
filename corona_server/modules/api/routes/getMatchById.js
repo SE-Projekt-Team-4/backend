@@ -18,7 +18,7 @@ async function f_requestHandler(req, res, next) {
     try {
         o_match = await f_getMatch(req.params.id);
 
-        if (o_match != null){
+        if (o_match !== null){
             req.manager.setData(o_match.getInfo()).sendResponse();
         }
         else {
@@ -26,7 +26,7 @@ async function f_requestHandler(req, res, next) {
         }       
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SYSERR: ", req.manager._callData);
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }

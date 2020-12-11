@@ -20,7 +20,7 @@ const o_redeemBooking = require("./routes/redeemBooking");
 const o_deleteBookingsOverSaveDuration = require("./routes/deleteBookingsOverSaveDuration");
 
 const o_getActualVisitors = require("./routes/getAllActualVisitors");
-const o_getActualVisitorsByMatchId = require("./routes/getActualVisitorsForMatches");
+const o_getActualVisitorsByMatchId = require("./routes/getActualVisitorsForMatch");
 
 
 // HANDLER =================================================================================================================
@@ -63,7 +63,7 @@ function f_handleCorsPrefetchRequests(req, res, next) {
 // Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
 function f_appendApiCallManagerToReq(req, res, next) {
   req.manager = new ApiCallManager(req, res);
-  console.log(req.manager._callData);
+  console.log("CREATE: ", req.manager._callData);
   next();
 }
 

@@ -24,9 +24,10 @@ async function f_requestHandler(req, res, next) {
 
         else {
             a_bookingData = [];
-            (await o_match.getBookings()).forEach(
-                (o_booking) => {
-                    a_bookingData.push(o_booking.getInfo())
+            a_bookings = await o_match.getBookings();
+            a_bookingData = a_bookings.map(
+                (booking) => {
+                    return booking.getInfo();
                 }
             );
             req.manager.setData(a_bookingData).sendResponse();
@@ -35,7 +36,7 @@ async function f_requestHandler(req, res, next) {
 
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SYSERR: ", req.manager._callData);
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }

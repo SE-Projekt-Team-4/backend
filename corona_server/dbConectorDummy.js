@@ -53,17 +53,17 @@ var bookings = [
     [5, 2, 6, false, "00000000507A"]
 ]
 
-function f_createBooking(matchId, visitorId, isRedeemed, verificationCode) {
+async function f_createBooking(matchId, visitorId, isRedeemed, verificationCode) {
     n_id = bookings.length;
     bookings.push([n_id, matchId, visitorId, isRedeemed, verificationCode]);
     return f_convertBooking([n_id, matchId, visitorId, isRedeemed, verificationCode]);
 }
 
-function f_getBooking(id) {
+async function f_getBooking(id) {
     return f_convertBooking(bookings[id]);
 }
 
-function f_getBookingsByMatchId(matchId) {
+async function f_getBookingsByMatchId(matchId) {
     var results = bookings.filter(obj => {
         return obj[1] === matchId;
       });
@@ -77,7 +77,7 @@ function f_getBookingsByMatchId(matchId) {
       return a;
 }
 
-function f_getBookingByVerificationCode(verificationCode) {
+async function f_getBookingByVerificationCode(verificationCode) {
     var v = null;
 
     bookings.forEach(
@@ -89,12 +89,12 @@ function f_getBookingByVerificationCode(verificationCode) {
     return v;
 }
 
-function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
+async function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
     bookings[id] = ([id, matchId, visitorId, isRedeemed, verificationCode]);
     return f_convertBooking([id, matchId, visitorId, isRedeemed, verificationCode]);
 }
 
-function f_deleteBooking(id) {
+async function f_deleteBooking(id) {
     console.log("Deleted Booking Id:  " + id);
 }
 
@@ -125,20 +125,20 @@ var matches = [
     [6, "Neckarstadt", "2007-12-08T18:21:00.000Z", 300, false]
 ];
 
-function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
+async function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
     n_id = matches.length;
     matches.push([n_id, opponent, dateTime, maxSpaces, isCancelled]);
     return f_convertMatch([n_id, opponent, dateTime, maxSpaces, isCancelled]);
 }
 
-function f_getMatch(id) {
+async function f_getMatch(id) {
     if (matches[id] === undefined) {
         return null;
     }
     return f_convertMatch(matches[id]);
 }
 
-function f_getAllMatches() {
+async function f_getAllMatches() {
     var a = [];
     for (var v in matches) {
         a.push(
@@ -148,17 +148,17 @@ function f_getAllMatches() {
     return a;
 }
 
-function f_updateMatch(id, opponent, dateTime, maxSpaces, isCancelled) {
+async function f_updateMatch(id, opponent, dateTime, maxSpaces, isCancelled) {
     matches[id] = ([id, opponent, dateTime, maxSpaces, isCancelled]);
     return f_convertMatch([id, opponent, dateTime, maxSpaces, isCancelled]);
 }
 
-function f_deleteMatch(id) {
+async function f_deleteMatch(id) {
     console.log("Deleted Match Id:  " + id);
     // TODO: NOT SUPPORTED
 }
 
-function f_getNumberOfBookings(matchId) {
+async function f_getNumberOfBookings(matchId) {
     var n = 0;
     bookings.forEach((a_booking) => {
         if (a_booking[1] === matchId){
@@ -168,7 +168,7 @@ function f_getNumberOfBookings(matchId) {
     return n;
 }
 
-function f_getMatchesBeforeDateTimeString(dateTimeString) {
+async function f_getMatchesBeforeDateTimeString(dateTimeString) {
     var results = matches.filter(obj => {
         return obj[2] <= dateTimeString;
       });
@@ -182,7 +182,7 @@ function f_getMatchesBeforeDateTimeString(dateTimeString) {
       return a;
 }
 
-function f_getMatchFirstAfterDateTimeString(dateTimeString) {
+async function f_getMatchFirstAfterDateTimeString(dateTimeString) {
     
     tmp = null;
 
@@ -226,17 +226,17 @@ var visitors = [
 ]
 
 
-function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
+async function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     n_id = visitors.length;
     visitors.push([n_id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail])
     return f_convertVisitor([n_id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail]);
 }
 
-function f_getVisitor(id) {
+async function f_getVisitor(id) {
     return f_convertVisitor(visitors[id]);
 }
 
-function f_getAllVisitors() {
+async function f_getAllVisitors() {
     var a = [];
     for (var v in visitors) {
         a.push(
@@ -246,12 +246,12 @@ function f_getAllVisitors() {
     return a;
 }
 
-function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
+async function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     visitors[id] = ([id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail]);
     return f_convertVisitor([id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail]);
 }
 
-function f_deleteVisitor(id) {
+async function f_deleteVisitor(id) {
     console.log("Deleted Visitor Id:  " + id);
     // TODO: Implement
 }

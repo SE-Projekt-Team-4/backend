@@ -34,8 +34,9 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse(res);
         }
         else {
-            const o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
-            const o_match = await f_getMatch(n_id);
+                var o_visitor = await f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+                var o_match = f_getMatch(n_id);
+
 
 
             if (o_match === null) {
@@ -45,9 +46,9 @@ async function f_requestHandler(req, res, next) {
                 req.manager.setError("BOOKNOSPACE").sendResponse();
             }
             else {
-                const o_booking = await f_createBooking(o_match, o_visitor);
+                var o_booking = await f_createBooking(o_match, await o_visitor);
 
-                var o_bookInfo = o_booking.getInfo();
+                const o_bookInfo = o_booking.getInfo();
 
                 await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
                     o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
@@ -56,15 +57,24 @@ async function f_requestHandler(req, res, next) {
         }
     }
     catch (error) {
-        if (o_booking) {
-            o_booking.delete(true); // D.I.Y. Rollback -> Booking is deleted (not undone)
+        try { // Rollback
+            if (o_booking !== undefined) {
+                (await o_booking).delete(true);
+            }
+            else if (o_visitor !== undefined) {
+                (await o_visitor).delete(true);
+            }
+        }
+        catch (err) {
+            console.error("Error during Rollback")
+            console.log(err);
         }
         if (error instanceof TypeError) {
             console.log(error);
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
         else {
-            console.log(req.manager.getResponseObject());
+            console.log("SYSERR: ", req.manager._callData);
             console.error(error);
             req.manager.setError("SYSERR").sendResponse();
         }

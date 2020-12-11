@@ -1,5 +1,5 @@
 const o_bookingManager = require("./bookingManager");
-const o_dbMatches = require("./dbConectorDummy").matchQueries;
+const o_dbMatches = require("../../database/DBConnector_Final").matchQueries;
 const o_typeHelper = require("../typeHelper");
 
 
@@ -94,11 +94,11 @@ class Match {
 
 
 // Private Section --------------------------------------------------------------------------------------------------
-function f_loadMatchFromDataRow(matchData) {
+function f_convertDataRowToMatch(matchData) {
 
-    const o_date = o_typeHelper.convertToDate(matchData.DATE_TIME)  
+    const o_date = o_typeHelper.convertToDate(matchData.DATE_TIME)
     const o_match = new Match(matchData.ID, matchData.OPPONENT, o_date, matchData.MAX_SPACES, matchData.IS_CANCELLED);
-    
+
     if (o_match.isValid()) {
         return o_match;
     }
@@ -107,77 +107,74 @@ function f_loadMatchFromDataRow(matchData) {
     }
 
 }
-function f_updateDataRowFromMatch(match) {
-    if (match.isValid()) {
-        const o_matchData = o_dbMatches.update(match._id, match._opponent, match._date.toISOString(), match._maxSpaces, match._isCancelled);
-        match._id = o_matchData.ID;
-        match._opponent = o_matchData.OPPONENT;
-        match._date = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
-        match._maxSpaces = o_matchData.MAX_SPACES;
-        match._isCancelled = o_matchData.IS_CANCELLED;
-        return match;
-    }
-    else {
+async function f_updateDataRowFromMatch(match) {
+    if (!match.isValid()) {
         throw new TypeError("One or more Invalid Attributes");
     }
+    const o_matchData = o_dbMatches.update(match._id, match._opponent, match._date.toISOString(), match._maxSpaces, match._isCancelled);
+    match._id = o_matchData.ID;
+    match._opponent = o_matchData.OPPONENT;
+    match._date = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
+    match._maxSpaces = o_matchData.MAX_SPACES;
+    match._isCancelled = o_matchData.IS_CANCELLED;
+    return match;
+
 }
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
-function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
+async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
 
     if (o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
         && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
         && o_typeHelper.test(maxSpaces, "POSITIVE_INT")
         && typeof isCancelled === "boolean") {
 
-        const o_date = o_typeHelper.convertToDate(dateTimeString);   
+        const o_date = o_typeHelper.convertToDate(dateTimeString);
 
-        const o_matchData = o_dbMatches.create(opponent, o_date.toISOString() , maxSpaces, isCancelled);
-        return f_loadMatchFromDataRow(o_matchData);
+        const o_matchData = await o_dbMatches.create(opponent, o_date.toISOString(), maxSpaces, isCancelled);
+        return f_convertDataRowToMatch(o_matchData);
     }
     else {
         throw new TypeError("One or more Invalid Parameters");
     }
 }
 
-function f_getMatch(id) {
-    const o_matchData = o_dbMatches.get(id);
+async function f_getMatch(id) {
+    const o_matchData = await o_dbMatches.get(id);
     if (o_matchData === null) {
         return null;
     }
-    return f_loadMatchFromDataRow(o_matchData);
+    return f_convertDataRowToMatch(o_matchData);
 }
 
-function f_getAllMatches() {
-    const a_matchData = o_dbMatches.getAll();
-    const a_matches = [];
+async function f_getAllMatches() {
 
-    a_matchData.forEach(
-        (o_matchData) => {
-            a_matches.push(f_loadMatchFromDataRow(o_matchData));
-        });
-    return a_matches;
+    const a_matchData = await o_dbMatches.getAll();
+
+    return a_matchData.map(
+        (matchData) => {
+            return f_convertDataRowToMatch(matchData);
+        }
+    );
 }
 
-function f_getMatchesBefore(date) {
-    const a_matchData = o_dbMatches.getMatchesBeforeDateTimeString(date.toISOString());
-    const a_matches = [];
+async function f_getMatchesBefore(date) {
+    const a_matchData = await o_dbMatches.getMatchesBeforeDateTimeString(date.toISOString());
 
-    a_matchData.forEach(
-        (o_matchData) => {
-            a_matches.push(f_loadMatchFromDataRow(o_matchData));
-        });
-    return a_matches;
+    return a_matchData.map(
+        (matchData) => {
+            return f_convertDataRowToMatch(matchData);
+        }
+    );
 }
 
-function f_getFirstMatchAfter(date) {
-    console.log("test");
-    const o_matchData = o_dbMatches.getMatchFirstAfterDateTimeString(date.toISOString());
+async function f_getFirstMatchAfter(date) {
+    const o_matchData = await o_dbMatches.getMatchFirstAfterDateTimeString(date.toISOString());
     if (o_matchData === null) {
         return null;
     }
-    return f_loadMatchFromDataRow(o_matchData);
+    return f_convertDataRowToMatch(o_matchData);
 }
 
 
@@ -185,4 +182,4 @@ module.exports.create = f_createMatch;
 module.exports.getById = f_getMatch;
 module.exports.getAll = f_getAllMatches;
 module.exports.getBefore = f_getMatchesBefore;
-module,exports.getFirstAfter = f_getFirstMatchAfter;
+module, exports.getFirstAfter = f_getFirstMatchAfter;

@@ -21,27 +21,42 @@ async function f_requestHandler(req, res, next) {
     try {
         o_date = new Date(Date.now());
         o_date.setDate(o_date.getDate() - BOOKINGS_SAVE_DURATION);
-        const a_matches = f_getMatchesBefore(o_date);
-        
+        const a_matches = await f_getMatchesBefore(o_date);
+
         var a_bookings = [];
-        a_matches.forEach(
-            (o_match) => {
-                a_bookings = a_bookings.concat(o_match.getBookings());
+
+        var a_bookingArrays = await Promise.all(
+            a_matches.map(
+                async (match) => {
+                    return match.getBookings();
+                }
+            )
+        );
+
+        a_bookingArrays.forEach(
+            (bookingArray) => {
+                a_bookings = a_bookings.concat(bookingArray);
             }
         );
 
-        var a_bookingData = [];
-        a_bookings.forEach(
-            (o_booking) => {
-                a_bookingData.push(o_booking.getInfo());
-                o_booking.delete(true);
-            }
+        var a_bookingData = await Promise.all(
+            a_bookings.map(
+                async (booking) => {
+                    try {
+                        await booking.delete(true);
+                    }
+                    catch(err) {
+                        console.log(err);
+                    }
+                    return booking.getInfo();
+                }
+            )
         );
 
-        req.manager.setData(a_bookingData).sendResponse();   
+        req.manager.setData(a_bookingData).sendResponse();
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SYSERR: ", req.manager._callData);
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }

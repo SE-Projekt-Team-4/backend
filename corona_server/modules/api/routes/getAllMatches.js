@@ -17,16 +17,15 @@ f_getAllMatches = require("../../model/matchManager").getAll
 async function f_requestHandler(req, res, next) {
     try {
         a_matches = f_getAllMatches();
-        a_matchdata = [];
-        a_matches.forEach(
-            (o_match) => {
-                a_matchdata.push(o_match.getInfo())
+        a_matchdata = a_matches.map(
+            (matches) => {
+                return matches.getInfo();
             }
         );
         req.manager.setData(a_matchdata).sendResponse();   
     }
     catch (error) {
-        console.log(req.manager.getResponseObject());
+        console.log("SYSERR: ", req.manager._callData);
         console.error(error);
         req.manager.setError("SYSERR").sendResponse();
     }
