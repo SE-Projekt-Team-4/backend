@@ -63,7 +63,7 @@ function f_handleCorsPrefetchRequests(req, res, next) {
 // Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
 function f_appendApiCallManagerToReq(req, res, next) {
   req.manager = new ApiCallManager(req, res);
-  console.log("CREATE: ", req.manager._callData);
+  console.log("CREATE: ", req.manager.getResponseObject());
   next();
 }
 
@@ -90,6 +90,12 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
       message: "If this error persists, please contact the server admin"
     }
   });
+}
+
+function f_handleUnexpectedErrors(err, req, res, next) {
+  console.log("SYSERR: ", req.manager.getResponseObject());
+  console.error(err);
+  req.manager.setError("SYSERR").sendResponse();
 }
 //-----------------------------------------------------------------------------------------
 // HANDLER =================================================================================================================
@@ -170,5 +176,7 @@ o_router.route("/isAdmin")
 
 // Called last ( only if no other route matches)
 o_router.use(f_handle404); // return 404
+// Called last ( only if error is forwarded)
+o_router.use(f_handleUnexpectedErrors); // return 500
 
 module.exports = o_router;

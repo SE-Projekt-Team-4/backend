@@ -16,32 +16,25 @@ f_getBookingByVerification = require("../../model/bookingManager").getByVerifica
  */
 async function f_requestHandler(req, res, next) {
     try {
-        //console.log(req.body);
         const s_verificationCode = req.body.verificationCode;
-        o_booking = await f_getBookingByVerification(s_verificationCode);
+        const o_booking = await f_getBookingByVerification(s_verificationCode);
 
-        if (o_booking !== null){
-            if ((await o_booking.redeem()) === true){
-                req.manager.setData(o_booking.getInfo()).sendResponse();
+        if (o_booking !== null) {
+            if ((await o_booking.redeem()) === true) {
+                req.manager.setData(await o_booking.loadInfo()).sendResponse();
             }
             else {
-                req.manager.setError("ALREADYREDEEMED", o_booking.getInfo()).sendResponse();
+                req.manager.setError("ALREADYREDEEMED", await o_booking.loadInfo()).sendResponse();
             }
         }
         else {
-            req.manager.setError("REDEEMNOMATCH").sendResponse();            
-        }   
-
+            req.manager.setError("REDEEMNOMATCH").sendResponse();
+        }
 
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
-
-
 }
-
 
 module.exports.handleRequest = f_requestHandler

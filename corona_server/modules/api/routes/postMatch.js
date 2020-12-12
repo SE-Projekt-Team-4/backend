@@ -23,7 +23,7 @@ async function f_requestHandler(req, res, next) {
         const b_isCancelled = req.body.isCancelled;
 
         const o_match = await f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)
-        req.manager.setData(o_match.getInfo()).sendResponse();
+        req.manager.setData(await o_match.loadInfo()).sendResponse();
 
     }
     catch (error) {
@@ -32,13 +32,9 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
         else{
-            console.log("SYSERR: ", req.manager._callData);
-            console.error(error);
-            req.manager.setError("SYSERR").sendResponse();
+            next(error);
         }
     }
-
-
 }
 
 

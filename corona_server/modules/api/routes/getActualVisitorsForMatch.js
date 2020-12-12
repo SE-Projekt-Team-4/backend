@@ -24,20 +24,19 @@ async function f_requestHandler(req, res, next) {
 
         else {
             a_visitors = await o_match.getActualVisitors();
-            a_visitorData = a_visitors.map(
-                (visitor) => {
-                    return visitor.getInfo();
-                }
-            );
+            a_visitorData = await Promise.all(
+                a_visitors.map(
+                    async (visitor) => {
+                        return await visitor.loadInfo();
+                    }
+                ));
             req.manager.setData(a_visitorData).sendResponse();
         }
 
 
     }
     catch (error) {
-        console.log("SERVER ERROR: " + req.manager.getResponseObject());
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
 
 }

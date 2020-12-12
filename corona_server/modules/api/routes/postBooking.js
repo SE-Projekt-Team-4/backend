@@ -34,8 +34,8 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse(res);
         }
         else {
-                var o_visitor = await f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
-                var o_match = f_getMatch(n_id);
+                var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+                var o_match = await f_getMatch(n_id);
 
 
 
@@ -48,7 +48,7 @@ async function f_requestHandler(req, res, next) {
             else {
                 var o_booking = await f_createBooking(o_match, await o_visitor);
 
-                const o_bookInfo = o_booking.getInfo();
+                const o_bookInfo = await o_booking.loadInfo();
 
                 await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
                     o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
@@ -74,9 +74,7 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("PARAMNOTVALID").sendResponse();
         }
         else {
-            console.log("SYSERR: ", req.manager._callData);
-            console.error(error);
-            req.manager.setError("SYSERR").sendResponse();
+            next(error);
         }
     }
 

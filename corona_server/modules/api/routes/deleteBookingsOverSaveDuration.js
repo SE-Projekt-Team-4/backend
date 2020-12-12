@@ -48,7 +48,7 @@ async function f_requestHandler(req, res, next) {
                     catch(err) {
                         console.log(err);
                     }
-                    return booking.getInfo();
+                    return booking.loadInfo();
                 }
             )
         );
@@ -56,11 +56,8 @@ async function f_requestHandler(req, res, next) {
         req.manager.setData(a_bookingData).sendResponse();
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
-
 }
 
 

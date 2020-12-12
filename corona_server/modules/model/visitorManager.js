@@ -17,7 +17,7 @@ class Visitor {
         this._eMail = eMail;
     }
 
-    getInfo() {
+    async loadInfo() {
         return {
             id: this._id,
             fName: this._fName,
@@ -47,12 +47,11 @@ class Visitor {
             && o_typeHelper.test(this._eMail, "E_MAIL");
     }
 
-    async update() {
-        f_updateDataRowFromVisitor(this);
-        return this;
+    update() {
+        return f_updateDataRowFromVisitor(this);
     }
 
-    async delete() {
+    delete() {
         return o_dbVisitors.delete(this._id);
     }
 
@@ -62,20 +61,19 @@ class Visitor {
 // Private Section --------------------------------------------------------------------------------------------------
 function f_convertDataRowToVisitor(visitorData) {
 
-    const o_visitor = new Visitor(visitorData.ID, visitorData.F_NAME, visitorData.L_NAME,
+    const o_visitor = new Visitor(visitorData.ID, visitorData.F_NAME, visitorData.L_Name,
         visitorData.CITY, visitorData.POSTCODE, visitorData.STREET, visitorData.HOUSE_NUMBER, visitorData.PHONE_NUMBER, visitorData.E_MAIL);
-
     if (o_visitor.isValid()) {
         return o_visitor;
     }
     else {
-        throw new TypeError("One or more Invalid Attributes");
+        throw new TypeError("Invalid oject or attributes");
     }
 }
 
 async function f_updateDataRowFromVisitor(visitor) {
     if (!this.isValid()) {
-        throw new TypeError("One or more Invalid Attributes");
+        throw new TypeError("Invalid oject or attributes");
     }
     const o_visitorData = await o_dbVisitors.update(
         this._id, this._fName, this._lName,
@@ -84,7 +82,7 @@ async function f_updateDataRowFromVisitor(visitor) {
 
     visitor._id = o_visitorData.ID;
     visitor._fName = o_visitorData.F_NAME;
-    visitor._lName = o_visitorData.L_NAME;
+    visitor._lName = o_visitorData.L_Name;
     visitor._city = o_visitorData.CITY;
     visitor._postcode = o_visitorData.POSTCODE;
     visitor._street = o_visitorData.STREET;
@@ -105,21 +103,18 @@ async function f_createVisitor(fName, lName, city, postcode, street, houseNumber
         && o_typeHelper.test(houseNumber, "HOUSE_NUMBER")
         && o_typeHelper.test(phoneNumber, "PHONE_NUMBER")
         && o_typeHelper.test(eMail, "E_MAIL")) {
-        try {
-            const o_visitorData = await o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail);
-            return f_convertDataRowToVisitor(o_visitorData);
-        }
-        catch (err) {
-            throw err;
-        }
+        return f_convertDataRowToVisitor( await o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail));
     }
     else {
-        throw new TypeError("One or more Invalid Parameters");
+        throw new Error("INVALID");
     }
 }
 
 async function f_getVisitor(id) {
     const o_visitorData = await o_dbVisitors.get(id);
+    if (o_visitorData === undefined) {
+        return null;
+    }
     return f_convertDataRowToVisitor(o_visitorData);
 }
 
@@ -135,8 +130,8 @@ async function f_getAllActualVisitors() {
     return a_visitors;
 }
 
-async function f_getActualVisitorsForMatch() {
-    const a_visitorData = await o_dbVisitors.getAllRedeemed();
+async function f_getActualVisitorsForMatch(match) {
+    const a_visitorData = await o_dbVisitors.getRedeemedForMatch(match.getId());
     const a_visitors = [];
 
     a_visitorData.forEach(

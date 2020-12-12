@@ -12,29 +12,33 @@ const o_regex = {
 }
 
 function f_test (object, tag) {
+    var b_isValid = false;
     if (o_regex[tag] !== undefined){
-        return o_regex[tag].test(object); 
+       b_isValid = o_regex[tag].test(object); 
     }
     else if (tag === "DATE_TIME_STRING"){
         if (typeof object !== "string" || object.length !== 24){
-            return false;
+            b_isValid = false;
         }
-        var n_year = object.substring(0, 4);
-        var n_month = object.substring(5, 7) -1;
-        var n_day = object.substring(8, 10);
-        var n_hours = object.substring(11, 13);
-        var n_minutes = object.substring(14, 16);
-        var n_seconds = object.substring(17, 19); 
-        
-
-        if (isNaN(n_year) || isNaN(n_month) || isNaN(n_day) || isNaN(n_hours) || isNaN(n_minutes) || isNaN(n_seconds)){
-            return false;
-        }
-        return true;
+        else {
+            var n_year = object.substring(0, 4);
+            var n_month = object.substring(5, 7) -1;
+            var n_day = object.substring(8, 10);
+            var n_hours = object.substring(11, 13);
+            var n_minutes = object.substring(14, 16);
+            var n_seconds = object.substring(17, 19); 
+            
+    
+            b_isValid = !(isNaN(n_year) || isNaN(n_month) || isNaN(n_day) || isNaN(n_hours) || isNaN(n_minutes) || isNaN(n_seconds));
+        }        
     }
     else {
         throw new Error("Validation-Tag " + String(tag) + " does not exist");
     }
+    if(!b_isValid){
+        console.log("Invalid Object: ", object, "for tag: ", tag )
+    }
+    return b_isValid
 }
 
 function f_convertToDate (dateTimeString) {

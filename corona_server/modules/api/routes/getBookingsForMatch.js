@@ -25,20 +25,17 @@ async function f_requestHandler(req, res, next) {
         else {
             a_bookingData = [];
             a_bookings = await o_match.getBookings();
-            a_bookingData = a_bookings.map(
-                (booking) => {
-                    return booking.getInfo();
-                }
-            );
+            a_bookingData = await Promise.all(
+                a_bookings.map(
+                    async (booking) => {
+                        return booking.loadInfo();
+                    }
+                ));
             req.manager.setData(a_bookingData).sendResponse();
         }
-
-
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
 
 }

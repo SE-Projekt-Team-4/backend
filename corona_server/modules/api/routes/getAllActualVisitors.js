@@ -17,19 +17,17 @@ f_getActualVisitors = require("../../model/visitorManager").getActual
 async function f_requestHandler(req, res, next) {
     try {
         a_visitors = await f_getActualVisitors();
-        a_visitorData = a_visitors.map(
-            (visitor) => {
-                return visitor.getInfo();
-            }
-        );
-        req.manager.setData(a_visitorData).sendResponse();  
+        a_visitorData = await Promise.all(
+            a_visitors.map(
+                async (visitor) => {
+                    return visitor.loadInfo();
+                }
+            ));
+        req.manager.setData(a_visitorData).sendResponse();
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
-
 }
 
 

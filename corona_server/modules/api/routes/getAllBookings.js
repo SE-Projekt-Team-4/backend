@@ -17,17 +17,16 @@ f_getAllBookings = require("../../model/bookingManager").getAll
 async function f_requestHandler(req, res, next) {
     try {
         a_bookings = await f_getAllBookings();
-        a_bookingData = a_bookings.map(
-            (booking) => {
-                return booking.getInfo();
-            }
-        );
-        req.manager.setData(a_bookingData).sendResponse();   
+        a_bookingData = await Promise.all(
+            a_bookings.map(
+                async (booking) => {
+                    return booking.loadInfo();
+                }
+            ));
+        req.manager.setData(a_bookingData).sendResponse();
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
 
 }

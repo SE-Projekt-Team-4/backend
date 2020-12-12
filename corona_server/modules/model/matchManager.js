@@ -1,4 +1,5 @@
 const o_bookingManager = require("./bookingManager");
+const o_visitorManager = require("./visitorManager");
 const o_dbMatches = require("../../database/DBConnector_Final").matchQueries;
 const o_typeHelper = require("../typeHelper");
 
@@ -16,35 +17,35 @@ class Match {
     setOpponent(opponent) {
         this._opponent = opponent;
         if (this.isValid() === false) {
-            throw new TypeError("After setting Attribute, match is no longer valid")
+            throw new Error("INVALID");
         }
     }
 
     setDateTime(date) {
         this._date = date;
         if (this.isValid() === false) {
-            throw new TypeError("After setting Attribute, match is no longer valid")
+            throw new Error("INVALID");
         }
     }
 
     setDateTimeFromString(dateTimeString) {
         this._date = o_typeHelper.convertToDate(dateTimeString);
         if (this.isValid() === false) {
-            throw new TypeError("After setting Attribute, match is no longer valid")
+            throw new Error("INVALID");
         }
     }
 
     setMaxSpaces(maxSpaces) {
         this._maxSpaces = maxSpaces;
         if (this.isValid() === false) {
-            throw new TypeError("After setting Attribute, match is no longer valid")
+            throw new Error("INVALID");
         }
     }
 
     setIsCancelled(isCancelled) {
         this._isCancelled = isCancelled;
         if (this.isValid() === false) {
-            throw new TypeError("After setting Attribute, match is no longer valid")
+            throw new Error("INVALID");
         }
     }
 
@@ -52,23 +53,49 @@ class Match {
         return this._id;
     }
 
-    update() {
-        return f_updateDataRowFromMatch(this);
-    }
-
-    delete() {
-        o_dbMatches.delete(this._id);
-    }
-
-    getInfo() {
+    async loadInfo() {
         return {
             id: this._id,
             opponent: this._opponent,
             date: this._date.toISOString(),
             maxSpaces: this._maxSpaces,
             isCancelled: this._isCancelled,
-            freeSpaces: this.getFreeSpaces()
+            freeSpaces: await this.getFreeSpaces()
         }
+    }
+
+    isValid() {
+        return o_typeHelper.test(this._id, "POSITIVE_INT")
+            && o_typeHelper.test(this._opponent, "NOT_EMPTY_STRING")
+            && o_typeHelper.test(this._date.toISOString(), "DATE_TIME_STRING")
+            && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
+            && typeof this._isCancelled === "boolean";
+    }
+
+    update() {
+        return f_updateDataRowFromMatch(this);
+    }
+
+    delete() {
+        return o_dbMatches.delete(this._id);
+    }
+
+    async delete(isToDeleteBookings) {
+        if (isToDeleteBookings !== false) {
+            a_bookings = await this.getBookings();
+            try {
+                await Promise.all(a_bookings.map( // Wait for deletion of all Bookings for match
+                    (booking) => {
+                        booking.delete(true);
+                    }
+                ));
+            }
+            catch (err) {
+                console.log("Did not delete Match due to error during deletion of Bookings")
+                throw (err);
+            }
+        }
+        return o_dbMatches.delete(this._id);
     }
 
     getBookings() {
@@ -79,17 +106,10 @@ class Match {
         return o_visitorManager.getActualForMatch(this);
     }
 
-    getFreeSpaces() {
-        return this._maxSpaces - o_dbMatches.getNumberOfBookings(this._id);
+    async getFreeSpaces() {
+        return this._maxSpaces - await o_dbMatches.getNumberOfBookings(this._id);
     }
 
-    isValid() {
-        return o_typeHelper.test(this._id, "POSITIVE_INT")
-            && o_typeHelper.test(this._opponent, "NOT_EMPTY_STRING")
-            && o_typeHelper.test(this._date.toISOString(), "DATE_TIME_STRING")
-            && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
-            && typeof this._isCancelled === "boolean";
-    }
 }
 
 
@@ -97,28 +117,29 @@ class Match {
 function f_convertDataRowToMatch(matchData) {
 
     const o_date = o_typeHelper.convertToDate(matchData.DATE_TIME)
-    const o_match = new Match(matchData.ID, matchData.OPPONENT, o_date, matchData.MAX_SPACES, matchData.IS_CANCELLED);
+
+    const o_match = new Match(matchData.ID, matchData.OPPONENT, o_date, matchData.MAX_SPACES, (matchData.IS_CANCELLED != 0));
 
     if (o_match.isValid()) {
         return o_match;
     }
     else {
-        throw new TypeError("One or more Invalid Attributes");
+        throw new Error("INVALID");
     }
 
 }
+
 async function f_updateDataRowFromMatch(match) {
     if (!match.isValid()) {
-        throw new TypeError("One or more Invalid Attributes");
+        throw new Error("INVALID");
     }
-    const o_matchData = o_dbMatches.update(match._id, match._opponent, match._date.toISOString(), match._maxSpaces, match._isCancelled);
+    const o_matchData = await o_dbMatches.update(match._id, match._opponent, match._date.toISOString(), match._maxSpaces, match._isCancelled);
     match._id = o_matchData.ID;
     match._opponent = o_matchData.OPPONENT;
     match._date = o_typeHelper.convertToDate(o_matchData.DATE_TIME);
     match._maxSpaces = o_matchData.MAX_SPACES;
-    match._isCancelled = o_matchData.IS_CANCELLED;
+    match._isCancelled = (o_matchData.IS_CANCELLED != 0);
     return match;
-
 }
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -136,13 +157,13 @@ async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
         return f_convertDataRowToMatch(o_matchData);
     }
     else {
-        throw new TypeError("One or more Invalid Parameters");
+        throw new Error("INVALID");
     }
 }
 
 async function f_getMatch(id) {
     const o_matchData = await o_dbMatches.get(id);
-    if (o_matchData === null) {
+    if (o_matchData === undefined) {
         return null;
     }
     return f_convertDataRowToMatch(o_matchData);
@@ -171,7 +192,7 @@ async function f_getMatchesBefore(date) {
 
 async function f_getFirstMatchAfter(date) {
     const o_matchData = await o_dbMatches.getMatchFirstAfterDateTimeString(date.toISOString());
-    if (o_matchData === null) {
+    if (o_matchData === undefined) {
         return null;
     }
     return f_convertDataRowToMatch(o_matchData);

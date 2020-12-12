@@ -18,17 +18,15 @@ async function f_requestHandler(req, res, next) {
     try {
         o_match = await f_getMatch(req.params.id);
 
-        if (o_match !== null){
-            req.manager.setData(o_match.getInfo()).sendResponse();
+        if (o_match !== null) {
+            req.manager.setData(await o_match.loadInfo()).sendResponse();
         }
         else {
-            req.manager.setError("NOMATCH").sendResponse();            
-        }       
+            req.manager.setError("NOMATCH").sendResponse();
+        }
     }
     catch (error) {
-        console.log("SYSERR: ", req.manager._callData);
-        console.error(error);
-        req.manager.setError("SYSERR").sendResponse();
+        next(error);
     }
 }
 
