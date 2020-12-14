@@ -77,6 +77,38 @@ function f_getAllBookings() {
     );
 }
 
+function f_getAllBookingsRedeemed() {
+    return new Promise(
+        (success, reject) => {
+            db.all('Select * from booking where Is_Redeemed = 1',
+            [], function (err, rows) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                success(rows);
+
+            });
+        }
+    );
+}
+
+function f_getRedeemedBookingsByMatchId(matchID) {
+    return new Promise(
+        (success, reject) => {
+            db.all('Select * from booking where Match_ID =? and Is_Redeemed = 1',
+                [matchID], function (err, rows) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    success(rows);
+
+                });
+        }
+    );
+}
+
 function f_getBookingsByVerificationCode(verificationCode) {
     return new Promise(
         (success, reject) => {
@@ -226,7 +258,7 @@ function f_deleteMatch(id) {
     // TODO: NOT SUPPORTED
     return new Promise(
         (success, reject) => {
-            db.run('Delete from Match where MATCH_ID = ?', [id], function (err) {
+            db.run('Delete from Match where ID = ?', [id], function (err) {
                 if (err) {
                     reject(err);
                     return;
@@ -307,39 +339,6 @@ function f_getAllVisitors() {
     );
 }
 
-function f_getAllActualVisitors() {
-    return new Promise(
-        (success, reject) => {
-            db.all('Select * from visitor inner join booking on booking.VISITOR_ID = visitor.ID where Is_Redeemed = 1',
-            [], function (err, rows) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                success(rows);
-
-            });
-        }
-    );
-}
-
-function f_getActualVisitorsForMatchId(matchID) {
-    return new Promise(
-        (success, reject) => {
-            db.all('Select * from visitor inner join booking on booking.VISITOR_ID = visitor.ID where Match_ID =? and Is_Redeemed = 1',
-                [matchID], function (err, rows) {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    success(rows);
-
-                });
-        }
-    );
-}
-
-
 function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     return new Promise(
         (success, reject) => {
@@ -380,8 +379,6 @@ const o_visitorQueries = {
     create: f_createVisitor,
     get: f_getVisitor,
     getAll: f_getAllVisitors,
-    getRedeemed: f_getAllActualVisitors,
-    getRedeemedForMatch: f_getActualVisitorsForMatchId,
     update: f_updateVisitor,
     delete: f_deleteVisitor
 }
@@ -390,7 +387,9 @@ const o_bookingQueries = {
     create: f_createBooking,
     get: f_getBooking,
     getAll: f_getAllBookings,
+    getRedeemed: f_getAllBookingsRedeemed,
     getByMatchId: f_getBookingsByMatchId,
+    getRedeemedByMatchId: f_getRedeemedBookingsByMatchId,
     update: f_updateBooking,
     delete: f_deleteBooking,
     getByVerificationCode: f_getBookingsByVerificationCode,

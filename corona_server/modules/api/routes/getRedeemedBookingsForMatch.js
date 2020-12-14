@@ -23,14 +23,14 @@ async function f_requestHandler(req, res, next) {
         }
 
         else {
-            a_visitors = await o_match.getActualVisitors();
-            a_visitorData = await Promise.all(
-                a_visitors.map(
-                    async (visitor) => {
-                        return await visitor.loadInfo();
+            a_bookings = await o_match.getRedeemedBookings();
+            a_bookingData = await Promise.all(
+                a_bookings.map(
+                    async (booking) => {
+                        return await booking.loadInfo();
                     }
                 ));
-            req.manager.setData(a_visitorData).sendResponse();
+            req.manager.setData(a_bookingData).sendResponse();
         }
 
 

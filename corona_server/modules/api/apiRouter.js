@@ -11,6 +11,7 @@ const o_getMatchById = require("./routes/getMatchById");
 const o_getMatchNext = require("./routes/getNextMatch");
 const o_postMatch = require("./routes/postMatch");
 const o_putMatch = require("./routes/putMatch");
+const o_deleteMatch = require("./routes/deleteMatch");
 
 
 const o_getBookings = require("./routes/getAllBookings");
@@ -19,8 +20,8 @@ const o_postBooking = require("./routes/postBooking");
 const o_redeemBooking = require("./routes/redeemBooking");
 const o_deleteBookingsOverSaveDuration = require("./routes/deleteBookingsOverSaveDuration");
 
-const o_getActualVisitors = require("./routes/getAllActualVisitors");
-const o_getActualVisitorsByMatchId = require("./routes/getActualVisitorsForMatch");
+const o_getRedeemedBookings = require("./routes/getAllRedeemedBookings");
+const o_getRedeemedBookingsByMatchId = require("./routes/getRedeemedBookingsForMatch");
 
 
 // HANDLER =================================================================================================================
@@ -132,12 +133,14 @@ o_router.route("/matches/:id")
   .options(f_handleCorsPrefetchRequests)
   .get(o_getMatchById.handleRequest) // Get match with given id
   .put(f_requireBasicAuth) 
-  .put(o_putMatch.handleRequest); // Update match with given id
+  .put(o_putMatch.handleRequest) // Update match with given id
+  .delete(f_requireBasicAuth) 
+  .delete(o_deleteMatch.handleRequest);
 
-o_router.route("/matches/:id/visitors")
+o_router.route("/matches/:id/redeemedBookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_getActualVisitorsByMatchId.handleRequest); // Get visitors that checked in for match
+  .get(o_getRedeemedBookingsByMatchId.handleRequest); // Get visitors that checked in for match
 
 o_router.route("/matches/:id/bookings")
   .options(f_handleCorsPrefetchRequests)
@@ -163,10 +166,10 @@ o_router.route("/bookings/overdue")
   .delete(o_deleteBookingsOverSaveDuration.handleRequest); // Delete booking and visitor data that is old
 
 
-o_router.route("/visitors")
+o_router.route("/redeemedBookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_getActualVisitors.handleRequest); // get all Visitors that checked in
+  .get(o_getRedeemedBookings.handleRequest); // get all Visitors that checked in
 
 // Returns 200 when basic auth passes 
 o_router.route("/isAdmin")

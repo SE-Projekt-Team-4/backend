@@ -176,6 +176,19 @@ async function f_getBookingsForMatch(match) {
     );
 }
 
+async function f_getRedeemedBookingsForMatch(match) {
+
+    var a_bookingData = await o_dbBookings.getRedeemedByMatchId(match.getId());
+
+    return Promise.all(
+        a_bookingData.map(
+            async (bookingData) => {
+                return f_loadBookingFromDataRow(bookingData);
+            }
+        )
+    );
+}
+
 async function f_getAllBookings() {
 
     var a_bookingData = await o_dbBookings.getAll();
@@ -188,6 +201,19 @@ async function f_getAllBookings() {
         )
     );
 }
+
+async function f_getRedeemedBookings() {
+
+    var a_bookingData = await o_dbBookings.getRedeemed();
+    return Promise.all(
+        a_bookingData.map(
+            async (bookingData) => {
+                return f_loadBookingFromDataRow(bookingData);
+            }
+        )
+    );
+}
+
 async function f_getBookingForVerificationCode(verificationCode) {
     const o_bookingData = await o_dbBookings.getByVerificationCode(verificationCode);
     if (o_bookingData === undefined) {
@@ -196,8 +222,15 @@ async function f_getBookingForVerificationCode(verificationCode) {
     return await f_loadBookingFromDataRow(o_bookingData);
 }
 
+
+
+
+
+
 module.exports.create = f_createBooking;
 module.exports.getById = f_getBooking;
 module.exports.getByVerificationCode = f_getBookingForVerificationCode;
 module.exports.getAll = f_getAllBookings;
 module.exports.getAllForMatch = f_getBookingsForMatch;
+module.exports.getRedeemed = f_getRedeemedBookings;
+module.exports.getRedeemedForMatch = f_getRedeemedBookingsForMatch;

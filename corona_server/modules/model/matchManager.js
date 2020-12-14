@@ -82,7 +82,7 @@ class Match {
 
     async delete(isToDeleteBookings) {
         if (isToDeleteBookings !== false) {
-            a_bookings = await this.getBookings();
+            const a_bookings = await this.getBookings();
             try {
                 await Promise.all(a_bookings.map( // Wait for deletion of all Bookings for match
                     (booking) => {
@@ -102,8 +102,8 @@ class Match {
         return o_bookingManager.getAllForMatch(this);
     }
 
-    getActualVisitors() {
-        return o_visitorManager.getActualForMatch(this);
+    getRedeemedBookings() {
+        return o_bookingManager.getRedeemedForMatch(this);
     }
 
     async getFreeSpaces() {

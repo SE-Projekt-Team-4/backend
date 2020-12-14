@@ -1,7 +1,7 @@
-f_getActualVisitors = require("../../model/visitorManager").getActual
+f_getMatch = require("../../model/matchManager").getById
 
 /**
- * @module getAllVisitors
+ * @module deleteMatch
  * @version 0.0.1
  */
 
@@ -16,18 +16,30 @@ f_getActualVisitors = require("../../model/visitorManager").getActual
  */
 async function f_requestHandler(req, res, next) {
     try {
-        a_visitors = await f_getActualVisitors();
-        a_visitorData = await Promise.all(
-            a_visitors.map(
-                async (visitor) => {
-                    return visitor.loadInfo();
-                }
-            ));
-        req.manager.setData(a_visitorData).sendResponse();
+
+        o_match = await f_getMatch(req.params.id);
+
+        if (o_match === null) {
+            req.manager.setError("NOMATCH").sendResponse();
+        }
+
+
+        await o_match.delete(true);
+        req.manager.setData("success").sendResponse();
+
+
     }
     catch (error) {
-        next(error);
+        if (error instanceof TypeError) {
+            console.log(error);
+            req.manager.setError("PARAMNOTVALID").sendResponse();
+        }
+        else{
+            next(error);
+        }
     }
+
+
 }
 
 

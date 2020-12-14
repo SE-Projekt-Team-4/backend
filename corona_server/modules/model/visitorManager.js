@@ -119,30 +119,5 @@ async function f_getVisitor(id) {
 }
 
 
-async function f_getAllActualVisitors() {
-    const a_visitorData = await o_dbVisitors.getRedeemed();
-    const a_visitors = [];
-
-    a_visitorData.forEach(
-        (o_visitorData) => {
-            a_visitors.push(f_convertDataRowToVisitor(o_visitorData));
-        });
-    return a_visitors;
-}
-
-async function f_getActualVisitorsForMatch(match) {
-    const a_visitorData = await o_dbVisitors.getRedeemedForMatch(match.getId());
-    const a_visitors = [];
-
-    a_visitorData.forEach(
-        (o_visitorData) => {
-            a_visitors.push(f_convertDataRowToVisitor(o_visitorData));
-        });
-    return a_visitors;
-}
-
-
 module.exports.create = f_createVisitor;
 module.exports.getById = f_getVisitor;
-module.exports.getActual = f_getAllActualVisitors;
-module.exports.getActualForMatch = f_getActualVisitorsForMatch;
