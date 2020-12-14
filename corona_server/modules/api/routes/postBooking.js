@@ -2,6 +2,7 @@ f_createBooking = require("../../model/bookingManager").create
 f_createVisitor = require("../../model/visitorManager").create
 f_getMatch = require("../../model/matchManager").getById
 f_sendMail = require("../../mailHelper").sendConfirmationMail
+f_blockConcurrencyGroupedBy = require("../../ConcurrencyHelper").f_blockConcurrencyGroupedByKey
 
 /**
  * @module postBooking
@@ -32,49 +33,74 @@ async function f_requestHandler(req, res, next) {
 
         if (isNaN(n_id)) {
             req.manager.setError("PARAMNOTVALID").sendResponse(res);
+            return;
         }
-        else {
-                var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
-                var o_match = await f_getMatch(n_id);
 
+        var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+        var o_match = await f_getMatch(n_id);
 
+        if (o_match === null) {
+            req.manager.setError("BOOKNOMATCH").sendResponse();
+            return;
+        }
 
-            if (o_match === null) {
-                req.manager.setError("BOOKNOMATCH").sendResponse();
+        if (await o_match.getFreeSpaces() <= 0) {
+            req.manager.setError("BOOKNOSPACE").sendResponse();
+            return;
+        }
+
+        var f_releaseConcurrencyBlock = await f_blockConcurrencyGroupedBy(o_match.getId()); // Save Release handler
+        try {
+
+            var o_booking = await f_createBooking(o_match, await o_visitor);
+            var o_bookInfo = await o_booking.loadInfo();
+
+        }
+        catch (error) {
+            try { // Rollback
+                if (o_booking !== undefined) {
+                    o_booking.delete(true);
+                }
+                else if (o_visitor !== undefined) {
+                    o_visitor.delete(true);
+                }
             }
-            else if (o_match.getFreeSpaces() <= 0) {
-                req.manager.setError("BOOKNOSPACE").sendResponse();
+            catch (err) {
+                console.error("Error during Rollback")
+                console.log(err);
             }
-            else {
-                var o_booking = await f_createBooking(o_match, await o_visitor);
+            f_releaseConcurrencyBlock();
+            throw error;
+        }
+        f_releaseConcurrencyBlock();
 
-                const o_bookInfo = await o_booking.loadInfo();
-
-                await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
-                    o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
-                req.manager.setData(o_bookInfo).sendResponse();
+        try {
+            await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
+                o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
+            req.manager.setData(o_bookInfo).sendResponse();
+        }
+        catch (error) { // Delete Booking if E-Mail could not be send
+            // Reapply Concurrency Block for Rollback duration
+            const f_releaseConcurrencyBlock = await f_blockConcurrencyGroupedBy(o_match.getId());
+            try {
+                o_booking.delete(true);
+            } catch (err) {
+                console.error("Error during Rollback")
+                console.log(err);
             }
+            f_releaseConcurrencyBlock();
+            throw error;
         }
     }
-    catch (error) {
-        try { // Rollback
-            if (o_booking !== undefined) {
-                (await o_booking).delete(true);
-            }
-            else if (o_visitor !== undefined) {
-                (await o_visitor).delete(true);
-            }
-        }
-        catch (err) {
-            console.error("Error during Rollback")
-            console.log(err);
-        }
+    catch {
         if (error instanceof TypeError) {
             console.log(error);
             req.manager.setError("PARAMNOTVALID").sendResponse();
+            f_releaseConcurrencyBlock();
         }
         else {
             next(error);
+            f_releaseConcurrencyBlock();
         }
     }
 

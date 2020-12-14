@@ -28,7 +28,7 @@ const s_linkBaseMatch = 'https://.......TODO'
 
 
 async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate, verificationCode, eMail) {
-
+    
     const p_html = f_getMailTemplate();
 
     const s_QRCodeDataUrl = await QRCode.toDataURL(verificationCode);
@@ -38,7 +38,7 @@ async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate
     const s_dateNow = new Date(Date.now()).toLocaleDateString('de-DE', o_dateFormat);
 
     let s_html = await p_html;
-    
+
     s_html = s_html.replace(a_placeholders[0], fName);
     s_html = s_html.replace(a_placeholders[1], lName);
     s_html = s_html.replace(a_placeholders[2], opponent);
@@ -57,15 +57,18 @@ async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate
         html: s_html // html body
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            throw (error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                reject(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve();
+            }
+        });
     });
+    
 
-    return true;
 }
 
 function f_getMailTemplate() {
