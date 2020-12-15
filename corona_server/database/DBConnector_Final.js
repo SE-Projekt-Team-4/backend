@@ -210,7 +210,7 @@ function f_getMatchesBeforeDateTimeString(datetime) {
 function f_getMatchFirstAfterDateTimeString(datetime) {
     return new Promise(
         (success, reject) => {
-            db.get('Select ID, OPPONENT, MAX(DATE_TIME) as DATE_TIME, MAX_SPACES, IS_CANCELLED from Match where Date_Time >? Limit 1', [datetime], function (err, row) {
+            db.get('Select ID, OPPONENT, MIN(DATE_TIME) as DATE_TIME, MAX_SPACES, IS_CANCELLED from Match where Date_Time >? Limit 1', [datetime], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
