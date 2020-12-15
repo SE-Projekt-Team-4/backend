@@ -150,15 +150,20 @@ async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
         && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
         && o_typeHelper.test(maxSpaces, "POSITIVE_INT")
         && typeof isCancelled === "boolean") {
-
-        const o_date = o_typeHelper.convertToDate(dateTimeString);
-
-        const o_matchData = await o_dbMatches.create(opponent, o_date.toISOString(), maxSpaces, isCancelled);
-        return f_convertDataRowToMatch(o_matchData);
-    }
-    else {
         throw new Error("INVALID");
     }
+    
+    const o_date = o_typeHelper.convertToDate(dateTimeString);
+
+    const o_matchData = await o_dbMatches.create(opponent, o_date.toISOString(), maxSpaces, isCancelled);
+    return f_convertDataRowToMatch(o_matchData);
+}
+
+function f_checkConstructorData(opponent, dateTimeString, maxSpaces, isCancelled) {
+    return (o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
+        && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
+        && o_typeHelper.test(maxSpaces, "POSITIVE_INT")
+        && typeof isCancelled === "boolean")
 }
 
 async function f_getMatch(id) {
@@ -203,4 +208,5 @@ module.exports.create = f_createMatch;
 module.exports.getById = f_getMatch;
 module.exports.getAll = f_getAllMatches;
 module.exports.getBefore = f_getMatchesBefore;
-module, exports.getFirstAfter = f_getFirstMatchAfter;
+module.exports.getFirstAfter = f_getFirstMatchAfter;
+module.exports.checkData = f_checkConstructorData;

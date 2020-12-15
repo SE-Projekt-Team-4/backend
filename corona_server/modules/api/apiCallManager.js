@@ -44,15 +44,15 @@ class ApiCallManager {
                 message : "Could not create Booking, no Match with that id exists"
             },
             "BOOKNOSPACE" : {
-                status : 422,
+                status : 403,
                 message : "Could not create Booking, the match is already booked out"
             },
             "PARAMNOTVALID" : {
-                status : 403,
+                status : 400,
                 message : "Bad Request - One or more parameters were invalid"
             },
             "ALREADYREDEEMED" : {
-                status : 422,
+                status : 403,
                 message : "This booking has already been redeemed"
             }
         }

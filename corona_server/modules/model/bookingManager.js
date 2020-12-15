@@ -155,6 +155,10 @@ async function f_createBooking(match, visitor) {
         return o_booking;
 }
 
+function f_checkConstructorData (match, visitor) {
+    return (!match.isValid() || !visitor.isValid())
+}
+
 async function f_getBooking(id) {
     const o_bookingData = await o_dbBookings.get(id);
     if (o_bookingData === undefined) {
@@ -234,3 +238,4 @@ module.exports.getAll = f_getAllBookings;
 module.exports.getAllForMatch = f_getBookingsForMatch;
 module.exports.getRedeemed = f_getRedeemedBookings;
 module.exports.getRedeemedForMatch = f_getRedeemedBookingsForMatch;
+module.exports.checkData = f_checkConstructorData;

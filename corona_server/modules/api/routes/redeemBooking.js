@@ -17,6 +17,11 @@ f_getBookingByVerification = require("../../model/bookingManager").getByVerifica
 async function f_requestHandler(req, res, next) {
     try {
         const s_verificationCode = req.body.verificationCode;
+
+        if(s_verificationCode === undefined) {
+            req.manager.setError("PARAMNOTVALID").sendResponse();
+            return;
+        }
         const o_booking = await f_getBookingByVerification(s_verificationCode);
 
         if (o_booking !== null) {

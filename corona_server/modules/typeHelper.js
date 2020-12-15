@@ -35,9 +35,6 @@ function f_test (object, tag) {
     else {
         throw new Error("Validation-Tag " + String(tag) + " does not exist");
     }
-    if(!b_isValid){
-        console.log("Invalid Object: ", object, "for tag: ", tag )
-    }
     return b_isValid
 }
 

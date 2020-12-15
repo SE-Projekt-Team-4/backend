@@ -1,8 +1,8 @@
 f_getMatch = require("../../model/matchManager").getById
+f_checkInput = require("../../model/matchManager").checkData
 
 /**
- * @module postMatch
- * @version 0.0.1
+ * @module putMatch
  */
 
 /**
@@ -23,34 +23,30 @@ async function f_requestHandler(req, res, next) {
             req.manager.setError("NOMATCH").sendResponse();
         }
 
+
+
         const s_opponent = req.body.opponent;
         const s_dateTimeString = req.body.date;
         const n_maxSpaces = req.body.maxSpaces;
         const b_isCancelled = req.body.isCancelled;
 
+        if (!f_checkInput(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)) {
+            req.manager.setError("PARAMNOTVALID").sendResponse();
+            return;
+        }
         o_match.setOpponent(s_opponent);
-
-        //===========================================
-
         o_match.setDateTimeFromString(s_dateTimeString);
         o_match.setMaxSpaces(n_maxSpaces);
         o_match.setIsCancelled(b_isCancelled);
-        await o_match.update();
-        req.manager.setData(await o_match.loadInfo()).sendResponse();
 
+        await o_match.update();
+
+        req.manager.setData(await o_match.loadInfo()).sendResponse();
 
     }
     catch (error) {
-        if (error instanceof TypeError) {
-            console.log(error);
-            req.manager.setError("PARAMNOTVALID").sendResponse();
-        }
-        else{
-            next(error);
-        }
+        next(error);
     }
-
-
 }
 
 

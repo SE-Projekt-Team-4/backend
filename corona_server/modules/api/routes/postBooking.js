@@ -1,12 +1,12 @@
 f_createBooking = require("../../model/bookingManager").create
 f_createVisitor = require("../../model/visitorManager").create
+f_checkInput = require("../../model/visitorManager").checkData
 f_getMatch = require("../../model/matchManager").getById
 f_sendMail = require("../../mailHelper").sendConfirmationMail
-f_blockConcurrencyGroupedBy = require("../../ConcurrencyHelper").f_blockConcurrencyGroupedByKey
+f_blockConcurrencyGroupedBy = require("../../concurrencyHelper").f_blockConcurrencyGroupedByKey
 
 /**
  * @module postBooking
- * @version 0.0.1
  */
 
 /**
@@ -36,7 +36,15 @@ async function f_requestHandler(req, res, next) {
             return;
         }
 
+        if (!f_checkInput(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail)) {
+            req.manager.setError("PARAMNOTVALID").sendResponse();
+            return;
+        }
+
+        
         var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+
+
         var o_match = await f_getMatch(n_id);
 
         if (o_match === null) {
@@ -93,18 +101,9 @@ async function f_requestHandler(req, res, next) {
         }
     }
     catch {
-        if (error instanceof TypeError) {
-            console.log(error);
-            req.manager.setError("PARAMNOTVALID").sendResponse();
-            f_releaseConcurrencyBlock();
-        }
-        else {
             next(error);
             f_releaseConcurrencyBlock();
-        }
     }
-
-
 }
 
 

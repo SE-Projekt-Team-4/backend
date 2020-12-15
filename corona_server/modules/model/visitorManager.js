@@ -103,11 +103,20 @@ async function f_createVisitor(fName, lName, city, postcode, street, houseNumber
         && o_typeHelper.test(houseNumber, "HOUSE_NUMBER")
         && o_typeHelper.test(phoneNumber, "PHONE_NUMBER")
         && o_typeHelper.test(eMail, "E_MAIL")) {
-        return f_convertDataRowToVisitor( await o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail));
-    }
-    else {
         throw new Error("INVALID");
     }
+    return f_convertDataRowToVisitor(await o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail));
+}
+
+function f_checkConstructorData(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
+    return (o_typeHelper.test(fName, "NAME")
+        && o_typeHelper.test(lName, "NAME")
+        && o_typeHelper.test(city, "CITY")
+        && o_typeHelper.test(postcode, "NOT_EMPTY_STRING")
+        && o_typeHelper.test(street, "NOT_EMPTY_STRING")
+        && o_typeHelper.test(houseNumber, "HOUSE_NUMBER")
+        && o_typeHelper.test(phoneNumber, "PHONE_NUMBER")
+        && o_typeHelper.test(eMail, "E_MAIL"))
 }
 
 async function f_getVisitor(id) {
@@ -121,3 +130,4 @@ async function f_getVisitor(id) {
 
 module.exports.create = f_createVisitor;
 module.exports.getById = f_getVisitor;
+module.exports.checkData = f_checkConstructorData;
