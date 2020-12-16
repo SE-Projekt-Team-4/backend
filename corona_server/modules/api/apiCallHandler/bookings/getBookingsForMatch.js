@@ -1,7 +1,7 @@
-f_getAllBookings = require("../../model/bookingManager").getAll
+f_getMatch = require("../../../model/matchManager").getById
 
 /**
- * @module getAllBookings
+ * @module getBookingsForMatch
  * @version 0.0.1
  */
 
@@ -14,22 +14,25 @@ f_getAllBookings = require("../../model/bookingManager").getAll
  * @param {Express.Request} req A request based on the Express framework
  * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
  */
-async function f_requestHandler(req, res, next) {
-    try {
-        a_bookings = await f_getAllBookings();
+async function f_getBookingsForMatch(apiCall) {
+    o_match = await f_getMatch(apiCall.getRequestParams().id);
+
+    if (o_match === null) {
+        apiCall.setError("NOMATCH").sendResponse();
+    }
+
+    else {
+        a_bookingData = [];
+        a_bookings = await o_match.getBookings();
         a_bookingData = await Promise.all(
             a_bookings.map(
                 async (booking) => {
                     return booking.loadInfo();
                 }
             ));
-        req.manager.setData(a_bookingData).sendResponse();
+        apiCall.setData(a_bookingData).sendResponse();
     }
-    catch (error) {
-        next(error);
-    }
-
 }
 
 
-module.exports.handleRequest = f_requestHandler
+module.exports = f_getBookingsForMatch

@@ -1,9 +1,12 @@
+/**
+ * @module matchManager
+ */
+
 const o_bookingManager = require("./bookingManager");
-const o_visitorManager = require("./visitorManager");
 const o_dbMatches = require("../../database/DBConnector_Final").matchQueries;
 const o_typeHelper = require("../typeHelper");
 
-
+/** Class representing a match. As only instances of this class are exported, the constructor is not visible from outside the module*/
 class Match {
 
     constructor(id, opponent, date, maxSpaces, isCancelled) {
@@ -14,45 +17,63 @@ class Match {
         this._isCancelled = (isCancelled === true);
     }
 
+    /**
+    * Change the opponent.
+    * @param {string} opponent
+    */
     setOpponent(opponent) {
         this._opponent = opponent;
-        if (this.isValid() === false) {
-            throw new Error("INVALID");
-        }
     }
-
+    /**
+    * Change the date.
+    * @param {Date} date
+    */
     setDateTime(date) {
         this._date = date;
-        if (this.isValid() === false) {
-            throw new Error("INVALID");
-        }
     }
-
+    /**
+    * Change the date using a dateTimeString.
+    * @param {Date} dateTimeString - A String that represents a date using the full z-variation UTC ISO8601 Date
+    * @throws Throws if dateTimeString is in the wrong format
+    */
     setDateTimeFromString(dateTimeString) {
         this._date = o_typeHelper.convertToDate(dateTimeString);
-        if (this.isValid() === false) {
-            throw new Error("INVALID");
-        }
     }
-
-    setMaxSpaces(maxSpaces) {
+    /**
+    * Change the number of max spaces, if the new number of max spaces is lower than the number of bookings for this match, no changes are made.
+    * @param {number} maxSpaces - New number of max spaces after check of number of bookings.
+    * @returns {number|null} Returns the number of Spaces after the update, if the update is not made return null instead
+    * @throws Throws database errors.
+    */
+    async setMaxSpaces(maxSpaces) {
+        const n_bookings = await o_dbMatches.getNumberOfBookings(this._id);
+        if( maxSpaces < n_bookings){
+            return null;
+        }
         this._maxSpaces = maxSpaces;
-        if (this.isValid() === false) {
-            throw new Error("INVALID");
-        }
+        return this._maxSpaces;
     }
-
+    /**
+    * Change whether the match is cancelled.
+    * @param {boolean} isCancelled 
+    */
     setIsCancelled(isCancelled) {
         this._isCancelled = isCancelled;
         if (this.isValid() === false) {
             throw new Error("INVALID");
         }
     }
-
+    /**
+    * Getter for Id.
+    * @returns {number} Id of this match
+    */
     getId() {
         return this._id;
     }
-
+    /**
+    * Returns info describing this match.
+    * @returns {object} Object describing this match.
+    */
     async loadInfo() {
         return {
             id: this._id,
@@ -63,7 +84,10 @@ class Match {
             freeSpaces: await this.getFreeSpaces()
         }
     }
-
+    /**
+    * Returns true if this match is valid.
+    * @returns {boolean} True if this match is valid, otherwise false.
+    */
     isValid() {
         return o_typeHelper.test(this._id, "POSITIVE_INT")
             && o_typeHelper.test(this._opponent, "NOT_EMPTY_STRING")
@@ -71,41 +95,56 @@ class Match {
             && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
             && typeof this._isCancelled === "boolean";
     }
-
-    update() {
+    /**
+    * Update the match saved on the database.
+    * @returns {Match} Returns the match after it has been updated.
+    * @throws Throws an error if the match is invalid or there has been a database error.
+    */
+    async update() {
         return f_updateDataRowFromMatch(this);
     }
-
-    delete() {
-        return o_dbMatches.delete(this._id);
-    }
-
-    async delete(isToDeleteBookings) {
-        if (isToDeleteBookings !== false) {
-            const a_bookings = await this.getBookings();
-            try {
-                await Promise.all(a_bookings.map( // Wait for deletion of all Bookings for match
-                    (booking) => {
-                        booking.delete(true);
-                    }
-                ));
-            }
-            catch (err) {
-                console.log("Did not delete Match due to error during deletion of Bookings")
-                throw (err);
-            }
+    /**
+    * Delete the match saved on the database and associated bookings.
+    * If an error is thrown during the deletion of the bookings, match will not be deleted.
+    * @returns {undefined} Returns after deletion is successfull.
+    * @throws Throws an error if there is a database error or the match no longer exist on the db.
+    */
+    async delete() {
+        const a_bookings = await this.getBookings();
+        try {
+            await Promise.all(a_bookings.map( // Wait for deletion of all Bookings for match
+                (booking) => {
+                    booking.delete();
+                }
+            ));
+        }
+        catch (err) {
+            console.log("Did not delete Match due to error during deletion of Bookings")
+            throw (err);
         }
         return o_dbMatches.delete(this._id);
     }
-
-    getBookings() {
+    /**
+    * Returns all bookings for this match.
+    * @returns {Array<Bookings>} Returns when bookings have been loaded.
+    * @throws  Throws an error if there is a db error or match is not found on db.
+    */
+    async getBookings() {
         return o_bookingManager.getAllForMatch(this);
     }
-
-    getRedeemedBookings() {
+    /**
+    * Returns redeemed bookings for this match.
+    * @returns {Array<Bookings>} Returns when bookings have been loaded.
+    * @throws  Throws an error if there is a db error or match is not found on db.
+    */
+    async getRedeemedBookings() {
         return o_bookingManager.getRedeemedForMatch(this);
     }
-
+    /**
+    * Returns the number of free spaces left for a match.
+    * @returns {number} Returns after number of free spaces have been calculated.
+    * @throws  Throws an error if there is a db error or match is not found on db.
+    */
     async getFreeSpaces() {
         return this._maxSpaces - await o_dbMatches.getNumberOfBookings(this._id);
     }
@@ -144,6 +183,16 @@ async function f_updateDataRowFromMatch(match) {
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
+/**
+ * Create a Match.
+ * @param {number} id - Id of the match. 
+ * @param {string} opponent - Opponent that the match is against.
+ * @param {string} dateTimeString - A string that represents the dateTime of the match.
+ * @param {number} maxSpaces - The max amount of spaces.
+ * @param {boolean} isCancelled - Whether the match is cancelled.
+ * @throws {Errror} - Throws an "INVALID" Error if the used attributes would create an invalid match.
+ * @returns {Match} - A match
+ */
 async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
 
     if (o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
@@ -152,13 +201,20 @@ async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
         && typeof isCancelled === "boolean") {
         throw new Error("INVALID");
     }
-    
+
     const o_date = o_typeHelper.convertToDate(dateTimeString);
 
     const o_matchData = await o_dbMatches.create(opponent, o_date.toISOString(), maxSpaces, isCancelled);
     return f_convertDataRowToMatch(o_matchData);
 }
-
+/**
+ * Check if data would create a valid match.
+ * @param {string} opponent - Opponent that the match is against. Must transform into string implicitly and not be empty to be valid.
+ * @param {dateTimeString} dateTimeString - DateTimeString that represents the start of the match. Must be ISO 8601 full version UTC Z-variation to be valid.
+ * @param {number} maxSpaces - The max amount of spaces. Must be a positive int to be valid.
+ * @param {boolean} isCancelled - Whether the match is cancelled. Must be a boolean to be valid.
+ * @return {boolean} Returns true if all attributes are valid otherwise returns false.
+ */
 function f_checkConstructorData(opponent, dateTimeString, maxSpaces, isCancelled) {
     return (o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
         && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
@@ -166,6 +222,14 @@ function f_checkConstructorData(opponent, dateTimeString, maxSpaces, isCancelled
         && typeof isCancelled === "boolean")
 }
 
+/**
+ * Get a certain match from the database using its id. If no match is found, this returns null.
+ * @param {string} opponent - Opponent that the match is against.
+ * @param {Date} date - DateTime Object that contains the dateTime of the match.
+ * @param {number} maxSpaces - The max amount of spaces.
+ * @param {boolean} isCancelled - Whether the match is cancelled.
+ * @returns {Match|null} Match with the given id or null
+ */
 async function f_getMatch(id) {
     const o_matchData = await o_dbMatches.get(id);
     if (o_matchData === undefined) {
@@ -173,7 +237,10 @@ async function f_getMatch(id) {
     }
     return f_convertDataRowToMatch(o_matchData);
 }
-
+/**
+ * Get all matches from the database.
+ * @returns {Array<Match>}
+ */
 async function f_getAllMatches() {
 
     const a_matchData = await o_dbMatches.getAll();
@@ -184,7 +251,11 @@ async function f_getAllMatches() {
         }
     );
 }
-
+/**
+ * Get all matches that start earlier than the given date.
+ * @param {Date} date - A date object
+ * @returns {Array<Match>} - Array with all Matches before the given date
+ */
 async function f_getMatchesBefore(date) {
     const a_matchData = await o_dbMatches.getMatchesBeforeDateTimeString(date.toISOString());
 
@@ -194,7 +265,11 @@ async function f_getMatchesBefore(date) {
         }
     );
 }
-
+/**
+ * Get the first match that starts after the given date
+ * @param {Date} date - A date object
+ * @returns {Match|null} - A Match after the date or null if no match is found
+ */
 async function f_getFirstMatchAfter(date) {
     const o_matchData = await o_dbMatches.getMatchFirstAfterDateTimeString(date.toISOString());
     if (o_matchData === undefined) {

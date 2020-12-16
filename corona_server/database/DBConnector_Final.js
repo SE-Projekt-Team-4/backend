@@ -149,9 +149,8 @@ function f_deleteBooking(id) {
                     reject(err);
                     return;
                 }
-                f_getBooking(id)
-                    .then(success)
-                    .catch(reject);
+                success();
+                return;
             });
         }
     );
@@ -263,9 +262,8 @@ function f_deleteMatch(id) {
                     reject(err);
                     return;
                 }
-                f_getMatch(id)
-                    .then(success)
-                    .catch(reject);
+                success();
+                return;
             });
         }
     );
@@ -364,9 +362,8 @@ function f_deleteVisitor(id) {
                     reject(err);
                     return;
                 }
-                f_getVisitor(id)
-                    .then(success)
-                    .catch(reject);
+                success();
+                return;
             });
         }
     );

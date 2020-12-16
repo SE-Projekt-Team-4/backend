@@ -1,4 +1,4 @@
-f_getMatch = require("../../model/matchManager").getSingle
+f_getMatch = require("../../../model/matchManager").getSingle
 
 /**
  * @module getMatchById
@@ -14,21 +14,16 @@ f_getMatch = require("../../model/matchManager").getSingle
  * @param {Express.Request} req A request based on the Express framework
  * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
  */
-async function f_requestHandler(req, res, next) {
-    try {
-        o_match = await f_getMatch(req.params.id);
+async function f_getMatchById(apiCall) {
+    o_match = await f_getMatch(apiCall.getRequestParams().id)
 
-        if (o_match !== null) {
-            req.manager.setData(await o_match.loadInfo()).sendResponse();
-        }
-        else {
-            req.manager.setError("NOMATCH").sendResponse();
-        }
+    if (o_match !== null) {
+        apiCall.setData(await o_match.loadInfo()).sendResponse();
     }
-    catch (error) {
-        next(error);
+    else {
+        apiCall.setError("NOMATCH").sendResponse();
     }
 }
 
 
-module.exports.handleRequest = f_requestHandler
+module.exports = f_getMatchById

@@ -4,31 +4,30 @@
  */
 const Express = require("express");
 const o_router = Express.Router();
-const ApiCallManager = require("./apiCallManager");
+const ApiCall = require("./apiCall");
 
-const o_getMatches = require("./routes/getAllMatches");
-const o_getMatchById = require("./routes/getMatchById");
-const o_getMatchNext = require("./routes/getNextMatch");
-const o_postMatch = require("./routes/postMatch");
-const o_putMatch = require("./routes/putMatch");
-const o_deleteMatch = require("./routes/deleteMatch");
+const f_getMatches = require("./apiCallHandler/matches/getMatches");
+const f_getMatchById = require("./apiCallHandler/matches/getMatchById");
+const f_getMatchNext = require("./apiCallHandler/matches/getMatchNext");
+const f_postMatch = require("./apiCallHandler/matches/postMatch");
+const f_putMatch = require("./apiCallHandler/matches/putMatch");
+const f_deleteMatch = require("./apiCallHandler/matches/deleteMatch");
 
 
-const o_getBookings = require("./routes/getAllBookings");
-const o_getBookingsForMatchId = require("./routes/getBookingsForMatch");
-const o_postBooking = require("./routes/postBooking");
-const o_redeemBooking = require("./routes/redeemBooking");
-const o_deleteBookingsOverSaveDuration = require("./routes/deleteBookingsOverSaveDuration");
-
-const o_getRedeemedBookings = require("./routes/getAllRedeemedBookings");
-const o_getRedeemedBookingsByMatchId = require("./routes/getRedeemedBookingsForMatch");
+const f_getBookings = require("./apiCallHandler/bookings/getBookings");
+const f_getBookingsForMatch = require("./apiCallHandler/bookings/getBookingsForMatch");
+const f_postBooking = require("./apiCallHandler/bookings/postBooking");
+const f_redeemBooking = require("./apiCallHandler/bookings/redeemBooking");
+const f_deleteBookingsOverSaveDuration = require("./apiCallHandler/bookings/deleteBookingsOverSaveDuration");
+const f_getBookingsRedeemed = require("./apiCallHandler/bookings/getRedeemedBookings");
+const f_getBookingsRedeemedByMatch = require("./apiCallHandler/bookings/getRedeemedBookingsForMatch");
 
 
 // HANDLER =================================================================================================================
 function f_requireBasicAuth(req, res, next) {
   // authentication middleware
 
-  const auth = {login: 'admin', password: 'Corona187'} // change this
+  const auth = { login: 'admin', password: 'Corona187' } // change this
 
   // parse login and password from headers
   const s_authHeader = req.headers.authorization || '' // If no header is set, create an empty one
@@ -63,8 +62,8 @@ function f_handleCorsPrefetchRequests(req, res, next) {
 
 // Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
 function f_appendApiCallManagerToReq(req, res, next) {
-  req.manager = new ApiCallManager(req, res);
-  console.log("CREATE: ", req.manager.getResponseObject());
+  req.manager = new ApiCall(req, res);
+  console.log("CREATE: ", req.manager.getCallData());
   next();
 }
 
@@ -93,10 +92,17 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
   });
 }
 
-function f_handleUnexpectedErrors(err, req, res, next) {
-  console.log("SYSERR: ", req.manager.getResponseObject());
-  console.error(err);
-  req.manager.setError("SYSERR").sendResponse();
+function f_callApiCallHandler(handler) {
+  return async function (req, res, next) {
+    try {
+      await handler(req.manager);
+    }
+    catch (error) {
+      console.log("SYSERR: ", req.manager.getCallData());
+      console.error(error);
+      req.manager.setError("SYSERR").sendResponse();
+    }
+  }
 }
 //-----------------------------------------------------------------------------------------
 // HANDLER =================================================================================================================
@@ -121,55 +127,55 @@ o_router.use(
 
 o_router.route("/matches")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_getMatches.handleRequest) // Get all natches
+  .get(f_callApiCallHandler(f_getMatches)) // Get all natches
   .post(f_requireBasicAuth)
-  .post(o_postMatch.handleRequest); // Create a new natch
+  .post(f_callApiCallHandler(f_postMatch)); // Create a new natch
 
 o_router.route("/nextMatch")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_getMatchNext.handleRequest); // Get the next natch that is going to happen
+  .get(f_callApiCallHandler(f_getMatchNext)); // Get the next natch that is going to happen
 
 o_router.route("/matches/:id")
   .options(f_handleCorsPrefetchRequests)
-  .get(o_getMatchById.handleRequest) // Get match with given id
-  .put(f_requireBasicAuth) 
-  .put(o_putMatch.handleRequest) // Update match with given id
-  .delete(f_requireBasicAuth) 
-  .delete(o_deleteMatch.handleRequest);
+  .get(f_callApiCallHandler(f_getMatchNext)) // Get match with given id
+  .put(f_requireBasicAuth)
+  .put(f_callApiCallHandler(f_putMatch)) // Update match with given id
+  .delete(f_requireBasicAuth)
+  .delete(f_callApiCallHandler(f_deleteMatch)); // Delete match with given id
 
 o_router.route("/matches/:id/redeemedBookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_getRedeemedBookingsByMatchId.handleRequest); // Get visitors that checked in for match
+  .get(f_callApiCallHandler(f_getBookingsRedeemedByMatch)); // Get redeemed bookings for match
 
 o_router.route("/matches/:id/bookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_getBookingsForMatchId.handleRequest); // Get bookings for match
+  .get(f_callApiCallHandler(f_getBookingsForMatch)); // Get bookings for match
 
 
 
 o_router.route("/bookings")
   .options(f_handleCorsPrefetchRequests)
-  .post(o_postBooking.handleRequest)
+  .post(f_callApiCallHandler(f_postBooking)) // Post a booking
   .get(f_requireBasicAuth)
-  .get(o_getBookings.handleRequest); // Get all bookings
+  .get(f_callApiCallHandler(f_getBookings)); // Get all bookings
 
 o_router.route("/bookings/redeem")
   .options(f_handleCorsPrefetchRequests)
   .post(f_requireBasicAuth)
-  .post(o_redeemBooking.handleRequest); // Redeem a booking code
+  .post(f_callApiCallHandler(f_redeemBooking)); // Redeem a booking code
 
 o_router.route("/bookings/overdue")
   .options(f_handleCorsPrefetchRequests)
   .delete(f_requireBasicAuth)
-  .delete(o_deleteBookingsOverSaveDuration.handleRequest); // Delete booking and visitor data that is old
+  .delete(f_callApiCallHandler(f_deleteBookingsOverSaveDuration)); // Delete booking and visitor data that is old
 
 
 o_router.route("/redeemedBookings")
   .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
-  .get(o_getRedeemedBookings.handleRequest); // get all Visitors that checked in
+  .get(f_callApiCallHandler(f_getBookingsRedeemed)); // get all redeemed Bookings
 
 // Returns 200 when basic auth passes 
 o_router.route("/isAdmin")
@@ -179,7 +185,5 @@ o_router.route("/isAdmin")
 
 // Called last ( only if no other route matches)
 o_router.use(f_handle404); // return 404
-// Called last ( only if error is forwarded)
-o_router.use(f_handleUnexpectedErrors); // return 500
 
 module.exports = o_router;
