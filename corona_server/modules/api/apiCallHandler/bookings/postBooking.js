@@ -1,9 +1,9 @@
-f_createBooking = require("../../../model/bookingManager").create
-f_createVisitor = require("../../../model/visitorManager").create
-f_checkInput = require("../../../model/visitorManager").checkData
-f_getMatch = require("../../../model/matchManager").getById
-f_sendMail = require("../../../mailHelper").sendConfirmationMail
-f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").f_blockConcurrencyGroupedByKey
+const f_createBooking = require("../../../model/bookingManager").create
+const f_createVisitor = require("../../../model/visitorManager").create
+const f_checkInput = require("../../../model/visitorManager").checkData
+const f_getMatch = require("../../../model/matchManager").getById
+const f_sendMail = require("../../../mailHelper").sendConfirmationMail
+const f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").f_blockConcurrencyGroupedByKey
 
 /**
  * @module postBooking
@@ -20,7 +20,7 @@ f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").f_blockConcu
  */
 async function f_postBooking(apiCall) {
 
-    const o_params = apiCall.getRequestParams();
+    const o_params = apiCall.getRequestBody();
     const n_id = o_params.matchId;
     const s_fName = o_params.fName;
     const s_lName = o_params.lName;
@@ -41,11 +41,8 @@ async function f_postBooking(apiCall) {
         return;
     }
 
-
-    var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
-
-
     var o_match = await f_getMatch(n_id);
+
 
     if (o_match === null) {
         apiCall.setError("BOOKNOMATCH").sendResponse();
@@ -56,6 +53,9 @@ async function f_postBooking(apiCall) {
         apiCall.setError("BOOKNOSPACE").sendResponse();
         return;
     }
+
+    var o_visitor = f_createVisitor(s_fName, s_lName, s_city, s_postcode, s_street, s_houseNumber, s_phoneNumber, s_eMail);
+
 
     var f_releaseConcurrencyBlock = await f_blockConcurrencyGroupedBy(o_match.getId()); // Save Release handler
     try {
