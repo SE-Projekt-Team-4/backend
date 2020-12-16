@@ -1,3 +1,7 @@
+# Custom ignore
+reactApps/*
+!reactApps/.README.md
+
 # Logs
 logs
 *.log

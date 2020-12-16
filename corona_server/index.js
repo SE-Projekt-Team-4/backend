@@ -18,10 +18,10 @@ o_app.use('/api', o_apiRouter)
 
 
 //Catch all other routes and redirect to react app
-o_app.use('/', Express.static(path.join(__dirname, 'frontendBuild')));
+o_app.use('/', Express.static(path.join(__dirname, 'reactApps', 'fg08')));
 
 o_app.get('/*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'frontendBuild', 'index.html'));
+  res.sendFile(path.join(__dirname, 'reactApps', 'index.html', 'fg08'));
 });
 
 
