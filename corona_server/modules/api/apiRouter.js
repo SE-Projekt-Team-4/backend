@@ -6,13 +6,6 @@ const Express = require("express");
 const o_router = Express.Router();
 const ApiCall = require("./apiCall");
 
-const f_getMatches = require("./apiCallHandler/matches/getMatches");
-const f_getMatchById = require("./apiCallHandler/matches/getMatchById");
-const f_getMatchNext = require("./apiCallHandler/matches/getMatchNext");
-const f_postMatch = require("./apiCallHandler/matches/postMatch");
-const f_putMatch = require("./apiCallHandler/matches/putMatch");
-const f_deleteMatch = require("./apiCallHandler/matches/deleteMatch");
-
 
 const f_deleteBookingsOverSaveDuration = require("./apiCallHandler/bookings/deleteBookingsOverSaveDuration");
 const f_getBookings = require("./apiCallHandler/bookings/getBookings");
@@ -21,6 +14,14 @@ const f_getBookingsRedeemed = require("./apiCallHandler/bookings/getBookingsRede
 const f_getBookingsRedeemedForMatch = require("./apiCallHandler/bookings/getBookingsRedeemedForMatch");
 const f_postBooking = require("./apiCallHandler/bookings/postBooking");
 const f_redeemBooking = require("./apiCallHandler/bookings/redeemBooking");
+
+const f_deleteMatch = require("./apiCallHandler/matches/deleteMatch");
+const f_getMatchById = require("./apiCallHandler/matches/getMatchById");
+const f_getMatches = require("./apiCallHandler/matches/getMatches");
+const f_getMatchNext = require("./apiCallHandler/matches/getMatchNext");
+const f_postMatch = require("./apiCallHandler/matches/postMatch");
+const f_putMatch = require("./apiCallHandler/matches/putMatch");
+
 
 
 // HANDLER =================================================================================================================

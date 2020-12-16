@@ -156,7 +156,7 @@ async function f_createBooking(match, visitor) {
 }
 
 function f_checkConstructorData (match, visitor) {
-    return (!match.isValid() || !visitor.isValid())
+    return (match.isValid() && visitor.isValid())
 }
 
 async function f_getBooking(id) {

@@ -32,7 +32,7 @@ async function f_postBooking(apiCall) {
     const s_eMail = o_params.eMail;
 
     if (isNaN(n_id)) {
-        apiCall.setError("PARAMNOTVALID").sendResponse(res);
+        apiCall.setError("PARAMNOTVALID").sendResponse();
         return;
     }
 
