@@ -21,7 +21,7 @@ o_app.use('/api', o_apiRouter)
 o_app.use('/', Express.static(path.join(__dirname, 'reactApps', 'fg08')));
 
 o_app.get('/*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'reactApps', 'index.html', 'fg08'));
+  res.sendFile(path.join(__dirname, 'reactApps', 'fg08', 'index.html'));
 });
 
 

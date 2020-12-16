@@ -24,8 +24,7 @@ const a_placeholders = [
     '#link_match#'
 ];
 
-const s_linkHome = 'https://.............................TODO'
-const s_linkBaseMatch = 'https://.......TODO'
+const s_linkHome = 'fg08mutterstadt.cfapps.eu10.hana.ondemand.com'
 
 
 async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate, verificationCode, eMail) {
