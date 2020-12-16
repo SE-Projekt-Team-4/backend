@@ -23,9 +23,8 @@ async function f_deleteMatch(apiCall) {
     }
 
     await o_match.delete(true);
-    apiCall.setData("success").sendResponse();
+    apiCall.setData(o_match).sendResponse();
 
 }
-
 
 module.exports = f_deleteMatch

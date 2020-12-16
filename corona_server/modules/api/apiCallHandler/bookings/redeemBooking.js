@@ -1,18 +1,15 @@
-f_getBookingByVerification = require("../../../model/bookingManager").getByVerificationCode
-
 /**
  * @module redeemBooking
- * @version 0.0.1
  */
+const ApiCall = require("../../apiCall");
+const f_getBookingByVerification = require("../../../model/bookingManager").getByVerificationCode
 
 /**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
+ * Handler for api calls. Redeems a booking using ist verification Code.
+ * Expects request body: {
+ *  verificationCode ---- verification code of a booking
+ * }
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_redeemBooking(apiCall) {
     const s_verificationCode = apiCall.getRequestBody().verificationCode;

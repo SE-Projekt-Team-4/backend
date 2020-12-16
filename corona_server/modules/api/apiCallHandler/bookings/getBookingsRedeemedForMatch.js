@@ -28,5 +28,4 @@ async function f_getBookingsRedeemedForMatch(apiCall) {
     }
 }
 
-
 module.exports = f_getBookingsRedeemedForMatch

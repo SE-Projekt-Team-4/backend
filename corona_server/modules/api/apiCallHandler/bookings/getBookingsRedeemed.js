@@ -20,5 +20,4 @@ async function f_getBookingsRedeemed(apiCall) {
     apiCall.setData(a_bookingData).sendResponse();
 }
 
-
 module.exports = f_getBookingsRedeemed
