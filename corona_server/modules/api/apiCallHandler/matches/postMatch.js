@@ -29,9 +29,7 @@ async function f_postMatch(apiCall) {
         return;
     }
 
-    console.log(f_checkInput(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled));
-
-    const o_match = await f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)
+    const o_match = await f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled);
     apiCall.setData(await o_match.loadInfo()).sendResponse();
 
 }
