@@ -1,38 +1,32 @@
-f_getMatch = require("../../../model/matchManager").getById
-
 /**
  * @module getBookingsForMatch
- * @version 0.0.1
  */
+const ApiCall = require("../../apiCall");
+const f_getMatch = require("../../../model/matchManager").getById
 
 /**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
+ * Handler for api calls. Returns info of all Bookings for a certain match.
+ * Expects request parameter: id - Id of the booking.
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_getBookingsForMatch(apiCall) {
+
     o_match = await f_getMatch(apiCall.getRequestParams().id);
 
     if (o_match === null) {
         apiCall.setError("NOMATCH").sendResponse();
+        return;
     }
 
-    else {
-        a_bookingData = [];
-        a_bookings = await o_match.getBookings();
-        a_bookingData = await Promise.all(
-            a_bookings.map(
-                async (booking) => {
-                    return booking.loadInfo();
-                }
-            ));
-        apiCall.setData(a_bookingData).sendResponse();
-    }
+    a_bookingData = [];
+    a_bookings = await o_match.getBookings();
+    a_bookingData = await Promise.all(
+        a_bookings.map(
+            async (booking) => {
+                return booking.loadInfo();
+            }
+        ));
+    apiCall.setData(a_bookingData).sendResponse();
 }
-
 
 module.exports = f_getBookingsForMatch

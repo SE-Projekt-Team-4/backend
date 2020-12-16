@@ -146,13 +146,22 @@ class Match {
     * @throws  Throws an error if there is a db error or match is not found on db.
     */
     async getFreeSpaces() {
-        return this._maxSpaces - await o_dbMatches.getNumberOfBookings(this._id);
+        return this._maxSpaces - await this.getNumberOfBookings();
     }
+    /**
+    * Returns the number of bookings for a match.
+    * @returns {number} Returns after number of free spaces have been calculated.
+    * @throws  Throws an error if there is a db error or match is not found on db.
+    */
+   async getNumberOfBookings() {
+    return o_dbMatches.getNumberOfBookings(this._id);
+}
 
 }
 
 
 // Private Section --------------------------------------------------------------------------------------------------
+// Handles conversion between Match Instances and data representing a Match on the database
 function f_convertDataRowToMatch(matchData) {
 
     const o_date = o_typeHelper.convertToDate(matchData.DATE_TIME)

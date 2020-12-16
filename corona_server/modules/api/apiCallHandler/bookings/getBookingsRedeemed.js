@@ -1,20 +1,15 @@
-f_getRedeemedBookings = require("../../../model/bookingManager").getRedeemed
+/**
+ * @module getBookingsRedeemed
+ */
+const ApiCall = require("../../apiCall");
+const f_getRedeemedBookings = require("../../../model/bookingManager").getRedeemed
 
 /**
- * @module getAllVisitors
- * @version 0.0.1
+ * Handler for api calls. Returns info of redeemed Bookings
+ * @param {ApiCall} apiCall Instance of an api call.
  */
+async function f_getBookingsRedeemed(apiCall) {
 
-/**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
- */
-async function f_getRedeemedBookings(apiCall) {
     a_bookings = await f_getRedeemedBookings();
     a_bookingData = await Promise.all(
         a_bookings.map(
@@ -26,4 +21,4 @@ async function f_getRedeemedBookings(apiCall) {
 }
 
 
-module.exports = f_getRedeemedBookings
+module.exports = f_getBookingsRedeemed

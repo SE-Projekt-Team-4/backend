@@ -1,20 +1,15 @@
-f_getMatch = require("../../../model/matchManager").getById
+/**
+ * @module getBookingsRedeemed
+ */
+const ApiCall = require("../../apiCall");
+const f_getMatch = require("../../../model/matchManager").getById
 
 /**
- * @module getVisitorsForMatch
- * @version 0.0.1
+ * Handler for api calls. Returns info of redeemed Bookings for a match.
+ * Expects request parameter: id - Id of the booking.
+ * @param {ApiCall} apiCall Instance of an api call.
  */
-
-/**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
- */
-async function f_getRedeemedBookingsFor(apiCall) {
+async function f_getBookingsRedeemedForMatch(apiCall) {
     o_match = await f_getMatch(apiCall.getRequestParams().id);
 
     if (o_match === null) {
@@ -34,4 +29,4 @@ async function f_getRedeemedBookingsFor(apiCall) {
 }
 
 
-module.exports = f_getRedeemedBookingsFor
+module.exports = f_getBookingsRedeemedForMatch

@@ -81,4 +81,4 @@ class Semaphore {
 
 }
 
-module.exports.f_blockConcurrencyGroupedByKey = f_blockConcurrencyGroupedByKey
+module.exports.blockConcurrencyGroupedByKey = f_blockConcurrencyGroupedByKey

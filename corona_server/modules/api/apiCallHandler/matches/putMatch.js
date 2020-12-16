@@ -39,7 +39,12 @@ async function f_putMatch(apiCall) {
     o_match.setIsCancelled(b_isCancelled);
 
     if ((await p_updateSpaces) === null) {
-        apiCall.setError("SPACESLTBOOKINGS").sendResponse();
+        const n_bookings = await o_match.getNumberOfBookings();
+        apiCall.setError("SPACESLTBOOKINGS", {
+            maxSpaces: n_maxSpaces,
+            numBookings: n_bookings,
+            freeSpaces: n_maxSpaces - n_bookings
+        }).sendResponse();
         return;
     }
 

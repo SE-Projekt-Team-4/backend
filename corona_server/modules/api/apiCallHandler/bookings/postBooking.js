@@ -1,9 +1,22 @@
+/**
+ * @module getBookingsRedeemed
+ */
+const ApiCall = require("../../apiCall");
 const f_createBooking = require("../../../model/bookingManager").create
 const f_createVisitor = require("../../../model/visitorManager").create
 const f_checkInput = require("../../../model/visitorManager").checkData
 const f_getMatch = require("../../../model/matchManager").getById
 const f_sendMail = require("../../../mailHelper").sendConfirmationMail
-const f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").f_blockConcurrencyGroupedByKey
+const f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").blockConcurrencyGroupedByKey
+
+/**
+ * Handler for api calls. Returns info of redeemed Bookings for a match.
+ * Expects request parameter: id - Id of the booking.
+ * @param {ApiCall} apiCall Instance of an api call.
+ */
+
+
+
 
 /**
  * @module postBooking

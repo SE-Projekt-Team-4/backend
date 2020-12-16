@@ -1,23 +1,22 @@
-f_getMatchesBefore = require("../../../model/matchManager").getBefore
 
 /**
  * @module deleteBookingsOverSaveDuration
  */
+const ApiCall = require("../../apiCall");
+const f_getMatchesBefore = require("../../../model/matchManager").getBefore
 
-/**
- * Handler for express request.
- * 
- * Deletes all bookings and connected visitors for matches that were so long ago that all bookings are over the save duration.
- * 
- * @param {Express.Request} req An express request with 
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
- */
-
+/** Saves the number of days that bookings should be saved, after the match happend */
 const BOOKINGS_SAVE_DURATION = 28 //Days  -- 4 Weeks
 
+/**
+ * Handler for api calls. Deletes all Bookings for matches that are older than the bookings save duration.
+ * @param {ApiCall} apiCall Instance of an api call.
+ */
 async function f_deleteBookingsOverSaveDuration(apiCall) {
+
     o_date = new Date(Date.now());
     o_date.setDate(o_date.getDate() - BOOKINGS_SAVE_DURATION);
+
     const a_matches = await f_getMatchesBefore(o_date);
 
     var a_bookings = [];
@@ -52,6 +51,5 @@ async function f_deleteBookingsOverSaveDuration(apiCall) {
 
     apiCall.setData(a_bookingData).sendResponse();
 }
-
 
 module.exports = f_deleteBookingsOverSaveDuration
