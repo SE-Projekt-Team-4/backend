@@ -1,4 +1,4 @@
-f_getMatch = require("../../../model/matchManager").getSingle
+const f_getMatch = require("../../../model/matchManager").getById
 
 /**
  * @module getMatchById
