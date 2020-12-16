@@ -1,6 +1,7 @@
-var nodemailer = require('nodemailer');
-var QRCode = require('qrcode');
-var fs = require('fs');
+const nodemailer = require('nodemailer');
+const QRCode = require('qrcode');
+const fs = require('fs');
+const path = require('path'); 
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -74,7 +75,7 @@ async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate
 function f_getMailTemplate() {
     return new Promise(
         (resolve, reject) => {
-            fs.readFile('./mailTemplate.html', 'utf8',
+            fs.readFile(path.join(__dirname, '..' ,'mailTemplate.html'), 'utf8',
                 function (err, html) {
                     if (err) {
                         reject(err);
