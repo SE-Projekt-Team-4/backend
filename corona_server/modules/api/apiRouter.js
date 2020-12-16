@@ -19,8 +19,8 @@ const f_getBookingsForMatch = require("./apiCallHandler/bookings/getBookingsForM
 const f_postBooking = require("./apiCallHandler/bookings/postBooking");
 const f_redeemBooking = require("./apiCallHandler/bookings/redeemBooking");
 const f_deleteBookingsOverSaveDuration = require("./apiCallHandler/bookings/deleteBookingsOverSaveDuration");
-const f_getBookingsRedeemed = require("./apiCallHandler/bookings/getRedeemedBookings");
-const f_getBookingsRedeemedByMatch = require("./apiCallHandler/bookings/getRedeemedBookingsForMatch");
+const f_getBookingsRedeemed = require("./apiCallHandler/bookings/getBookingsRedeemed");
+const f_getBookingsRedeemedByMatch = require("./apiCallHandler/bookings/getBookingsRedeemedForMatch");
 
 
 // HANDLER =================================================================================================================
@@ -137,7 +137,7 @@ o_router.route("/nextMatch")
 
 o_router.route("/matches/:id")
   .options(f_handleCorsPrefetchRequests)
-  .get(f_callApiCallHandler(f_getMatchNext)) // Get match with given id
+  .get(f_callApiCallHandler(f_getMatchById)) // Get match with given id
   .put(f_requireBasicAuth)
   .put(f_callApiCallHandler(f_putMatch)) // Update match with given id
   .delete(f_requireBasicAuth)
