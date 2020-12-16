@@ -1,7 +1,3 @@
-# Custom ignores
-
-frontendBuild/*
-
 # Logs
 logs
 *.log
