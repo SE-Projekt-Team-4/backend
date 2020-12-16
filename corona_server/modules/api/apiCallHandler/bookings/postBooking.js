@@ -20,7 +20,7 @@ f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").f_blockConcu
  */
 async function f_postBooking(apiCall) {
 
-    const o_params = apiCall.getParams();
+    const o_params = apiCall.getRequestParams();
     const n_id = o_params.matchId;
     const s_fName = o_params.fName;
     const s_lName = o_params.lName;

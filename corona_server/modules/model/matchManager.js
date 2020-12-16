@@ -195,10 +195,10 @@ async function f_updateDataRowFromMatch(match) {
  */
 async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
 
-    if (o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
+    if (!(o_typeHelper.test(opponent, "NOT_EMPTY_STRING")
         && o_typeHelper.test(dateTimeString, "DATE_TIME_STRING")
         && o_typeHelper.test(maxSpaces, "POSITIVE_INT")
-        && typeof isCancelled === "boolean") {
+        && typeof isCancelled === "boolean")) {
         throw new Error("INVALID");
     }
 

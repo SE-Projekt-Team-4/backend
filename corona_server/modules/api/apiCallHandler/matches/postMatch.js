@@ -1,5 +1,5 @@
-f_createMatch = require("../../../model/matchManager").create
-f_checkInput = require("../../../model/matchManager").checkData
+const f_createMatch = require("../../../model/matchManager").create
+const f_checkInput = require("../../../model/matchManager").checkData
 
 /**
  * @module postMatch
@@ -23,10 +23,13 @@ async function f_postMatch(apiCall) {
     const n_maxSpaces = o_body.maxSpaces;
     const b_isCancelled = o_body.isCancelled;
 
+ 
     if (!f_checkInput(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)) {
         apiCall.setError("PARAMNOTVALID").sendResponse();
         return;
     }
+
+    console.log(f_checkInput(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled));
 
     const o_match = await f_createMatch(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)
     apiCall.setData(await o_match.loadInfo()).sendResponse();

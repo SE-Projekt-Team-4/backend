@@ -15,7 +15,7 @@ f_getMatch = require("../../../model/matchManager").getById
  * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
  */
 async function f_getRedeemedBookingsFor(apiCall) {
-    o_match = await f_getMatch(apiCall.getParams().id);
+    o_match = await f_getMatch(apiCall.getRequestParams().id);
 
     if (o_match === null) {
         apiCall.setError("NOMATCH").sendResponse();
