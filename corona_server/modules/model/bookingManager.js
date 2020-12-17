@@ -4,7 +4,7 @@
 
 const o_visitorManager = require("./visitorManager");
 const o_matchManager = require("./matchManager");
-const o_dbBookings = require("../../database/DBConnector_Final").bookingQueries;
+const o_dbBookings = require("./DBConnector_Final").bookingQueries;
 const o_typeHelper = require("../typeHelper");
 
 /** Class representing a booking. As only instances of this class are exported, the constructor is not visible from outside the module*/
@@ -27,7 +27,6 @@ class Booking {
         this._isRedeemed = isRedeemed;
         this._verificationCode = verificationCode;
         // Bind "this" for async functions
-        this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
         this.redeem = this.redeem.bind(this);
     }
@@ -73,14 +72,6 @@ class Booking {
             && typeof this._isRedeemed === "boolean"
             && (o_typeHelper.test(this._verificationCode, "NOT_EMPTY_STRING") || null);
     }
-    /**
-    * Update the persistent booking.
-    * @returns {Booking} Returns the booking after it has been updated.
-    * @throws Throws an error if the booking is invalid or there has been a database error.
-    */
-    update() {
-        return f_updateDataRowFromBooking(this);
-    }
 
     /**
     * Delete the persistent booking on the database and associated visitors.
@@ -110,7 +101,7 @@ class Booking {
         }
         else {
             this._isRedeemed = true;
-            await this.update(); // Wait for Errors so we dont return true when update fails
+            await f_updateDataRowFromBooking(this); // Wait for Errors so we dont return true when update fails
             return true;
         }
     }
@@ -177,7 +168,7 @@ async function f_createBooking(match, visitor) {
 
     try {
         o_booking._verificationCode = Booking._generateVerificationCode(o_booking._id);
-        await o_booking.update(); // Wait for update and Errors
+        await f_updateDataRowFromBooking(o_booking); // Wait for update and Errors
     }
     catch (error) {
         try {

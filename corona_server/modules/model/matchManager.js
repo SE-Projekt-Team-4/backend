@@ -3,7 +3,7 @@
  */
 
 const o_bookingManager = require("./bookingManager");
-const o_dbMatches = require("../../database/DBConnector_Final").matchQueries;
+const o_dbMatches = require("./DBConnector_Final").matchQueries;
 const o_typeHelper = require("../typeHelper");
 
 /** Class representing a match. As only instances of this class are exported, the constructor is not visible from outside the module*/
@@ -20,30 +20,38 @@ class Match {
     /**
     * Change the opponent.
     * @param {string} opponent
+    * @throws Throws an "INVALID" Error if the used attributes would create an invalid match, also throws db errors.
     */
-    setOpponent(opponent) {
+    async setOpponent(opponent) {
         this._opponent = opponent;
+        await f_updateDataRowFromMatch(this);
     }
+
     /**
     * Change the date.
     * @param {Date} date
+    * @throws Throws an "INVALID" Error if the used attributes would create an invalid match, also throws db errors.
     */
-    setDateTime(date) {
+    async setDateTime(date) {
         this._date = date;
+        await f_updateDataRowFromMatch(this);
     }
+
     /**
     * Change the date using a dateTimeString.
     * @param {Date} dateTimeString - A String that represents a date using the full z-variation UTC ISO8601 Date
-    * @throws Throws if dateTimeString is in the wrong format
+    * @throws Throws if dateTimeString is in the wrong format, also throws db errors.
     */
-    setDateTimeFromString(dateTimeString) {
+    async setDateTimeFromString(dateTimeString) {
         this._date = o_typeHelper.convertToDate(dateTimeString);
+        await f_updateDataRowFromMatch(this);
     }
+
     /**
     * Change the number of max spaces, if the new number of max spaces is lower than the number of bookings for this match, no changes are made.
     * @param {number} maxSpaces - New number of max spaces after check of number of bookings.
     * @returns {number|null} Returns the number of Spaces after the update, if the update is not made return null instead
-    * @throws Throws database errors.
+    * @throws Throws db errors.
     */
     async setMaxSpaces(maxSpaces) {
         const n_bookings = await o_dbMatches.getNumberOfBookings(this._id);
@@ -51,18 +59,20 @@ class Match {
             return null;
         }
         this._maxSpaces = maxSpaces;
+        await f_updateDataRowFromMatch(this);
         return this._maxSpaces;
     }
+
     /**
     * Change whether the match is cancelled.
     * @param {boolean} isCancelled 
+    * @throws Throws an "INVALID" Error if the used attributes would create an invalid match, also throws db errors.
     */
-    setIsCancelled(isCancelled) {
+    async setIsCancelled(isCancelled) {
         this._isCancelled = isCancelled;
-        if (this.isValid() === false) {
-            throw new Error("INVALID");
-        }
+        await f_updateDataRowFromMatch(this);
     }
+
     /**
     * Getter for Id.
     * @returns {number} Id of this match
@@ -70,6 +80,7 @@ class Match {
     getId() {
         return this._id;
     }
+
     /**
     * Returns info describing this match.
     * @returns {object} Object describing this match.
@@ -84,6 +95,7 @@ class Match {
             freeSpaces: await this.getFreeSpaces()
         }
     }
+
     /**
     * Returns true if this match is valid.
     * @returns {boolean} True if this match is valid, otherwise false.
@@ -95,14 +107,7 @@ class Match {
             && o_typeHelper.test(this._maxSpaces, "POSITIVE_INT")
             && typeof this._isCancelled === "boolean";
     }
-    /**
-    * Update the match saved on the database.
-    * @returns {Match} Returns the match after it has been updated.
-    * @throws Throws an error if the match is invalid or there has been a database error.
-    */
-    async update() {
-        return f_updateDataRowFromMatch(this);
-    }
+
     /**
     * Delete the match saved on the database and associated bookings.
     * If an error is thrown during the deletion of the bookings, match will not be deleted.
@@ -124,6 +129,7 @@ class Match {
         }
         return o_dbMatches.delete(this._id);
     }
+
     /**
     * Returns all bookings for this match.
     * @returns {Array<Bookings>} Returns when bookings have been loaded.
@@ -132,6 +138,7 @@ class Match {
     async getBookings() {
         return o_bookingManager.getAllForMatch(this);
     }
+
     /**
     * Returns redeemed bookings for this match.
     * @returns {Array<Bookings>} Returns when bookings have been loaded.
@@ -140,6 +147,7 @@ class Match {
     async getRedeemedBookings() {
         return o_bookingManager.getRedeemedForMatch(this);
     }
+
     /**
     * Returns the number of free spaces left for a match.
     * @returns {number} Returns after number of free spaces have been calculated.
@@ -148,6 +156,7 @@ class Match {
     async getFreeSpaces() {
         return this._maxSpaces - await this.getNumberOfBookings();
     }
+    
     /**
     * Returns the number of bookings for a match.
     * @returns {number} Returns after number of free spaces have been calculated.
@@ -199,7 +208,7 @@ async function f_updateDataRowFromMatch(match) {
  * @param {string} dateTimeString - A string that represents the dateTime of the match.
  * @param {number} maxSpaces - The max amount of spaces.
  * @param {boolean} isCancelled - Whether the match is cancelled.
- * @throws {Error} - Throws an "INVALID" Error if the used attributes would create an invalid match.
+ * @throws {Error} - Throws an "INVALID" Error if the used attributes would create an invalid match, also throws db errors.
  * @returns {Match} - A match
  */
 async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {

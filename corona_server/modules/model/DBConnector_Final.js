@@ -1,8 +1,8 @@
 
-const sqlite3 = require('sqlite3').verbose()
-const path = require('path')
+const sqlite3 = require("sqlite3").verbose()
+const path = require("path")
 
-let db = new sqlite3.Database(path.join(__dirname, '.', 'SE.db'),
+let db = new sqlite3.Database(path.join(__dirname, "..", "..", "database", "SE.db"),
     sqlite3.OPEN_READWRITE,
     (err) => {
         if (err) {
@@ -19,7 +19,7 @@ function f_createBooking(matchId, visitorId, isRedeemed, verificationCode) {
 
     return new Promise(
         (success, reject) => {
-            db.run('Insert into Booking(MATCH_ID,Visitor_ID,IS_REDEEMED,VERIFICATION_CODE) values (?,?,?,?)',
+            db.run("Insert into Booking(MATCH_ID,Visitor_ID,IS_REDEEMED,VERIFICATION_CODE) values (?,?,?,?)",
                 [matchId, visitorId, isRedeemed, verificationCode], function (err) {
                     if (err) {
                         reject(err);
@@ -36,7 +36,7 @@ function f_createBooking(matchId, visitorId, isRedeemed, verificationCode) {
 function f_getBooking(id) {
     return new Promise(
         (success, reject) => {
-            db.get('Select * from Booking where ID =?', [id], function (err, row) {
+            db.get("Select * from Booking where ID =?", [id], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
@@ -50,7 +50,7 @@ function f_getBooking(id) {
 function f_getBookingsByMatchId(matchId) {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from Booking where MATCH_ID =?', [matchId], function (err, rows) {
+            db.all("Select * from Booking where MATCH_ID =?", [matchId], function (err, rows) {
                 if (err) {
                     reject(err);
                     return;
@@ -65,7 +65,7 @@ function f_getBookingsByMatchId(matchId) {
 function f_getAllBookings() {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from Booking', [], function (err, rows) {
+            db.all("Select * from Booking", [], function (err, rows) {
                 if (err) {
                     reject(err);
                     return;
@@ -80,7 +80,7 @@ function f_getAllBookings() {
 function f_getAllBookingsRedeemed() {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from booking where Is_Redeemed = 1',
+            db.all("Select * from booking where Is_Redeemed = 1",
             [], function (err, rows) {
                 if (err) {
                     reject(err);
@@ -96,7 +96,7 @@ function f_getAllBookingsRedeemed() {
 function f_getRedeemedBookingsByMatchId(matchID) {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from booking where Match_ID =? and Is_Redeemed = 1',
+            db.all("Select * from booking where Match_ID =? and Is_Redeemed = 1",
                 [matchID], function (err, rows) {
                     if (err) {
                         reject(err);
@@ -112,7 +112,7 @@ function f_getRedeemedBookingsByMatchId(matchID) {
 function f_getBookingsByVerificationCode(verificationCode) {
     return new Promise(
         (success, reject) => {
-            db.get('Select * from Booking where VERIFICATION_CODE =?', [verificationCode], function (err, row) {
+            db.get("Select * from Booking where VERIFICATION_CODE =?", [verificationCode], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
@@ -127,7 +127,7 @@ function f_getBookingsByVerificationCode(verificationCode) {
 function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
     return new Promise(
         (success, reject) => {
-            db.run('Update Booking set MATCH_ID= ?, Visitor_ID = ? , Is_Redeemed= ?, Verification_Code= ? where id =?',
+            db.run("Update Booking set MATCH_ID= ?, Visitor_ID = ? , Is_Redeemed= ?, Verification_Code= ? where id =?",
                 [matchId, visitorId, isRedeemed, verificationCode, id], function (err) {
                     if (err) {
                         reject(err);
@@ -144,7 +144,7 @@ function f_updateBooking(id, matchId, visitorId, isRedeemed, verificationCode) {
 function f_deleteBooking(id) {
     return new Promise(
         (success, reject) => {
-            db.run('Delete from Booking where id = ?', [id], function (err) {
+            db.run("Delete from Booking where id = ?", [id], function (err) {
                 if (err) {
                     reject(err);
                     return;
@@ -164,7 +164,7 @@ function f_deleteBooking(id) {
 function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
     return new Promise(
         (success, reject) => {
-            db.run('Insert into Match(Max_Spaces,Opponent,Date_Time,Is_Cancelled) values (?,?,?,?)',
+            db.run("Insert into Match(Max_Spaces,Opponent,Date_Time,Is_Cancelled) values (?,?,?,?)",
                 [maxSpaces, opponent, dateTime, isCancelled], function (err) {
                     if (err) {
                         reject(err);
@@ -181,7 +181,7 @@ function f_createMatch(opponent, dateTime, maxSpaces, isCancelled) {
 function f_getMatch(id) {
     return new Promise(
         (success, reject) => {
-            db.get('Select * from Match where ID =?', [id], function (err, row) {
+            db.get("Select * from Match where ID =?", [id], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
@@ -195,7 +195,7 @@ function f_getMatch(id) {
 function f_getMatchesBeforeDateTimeString(datetime) {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from Match where Date_Time <?', [datetime], function (err, rows) {
+            db.all("Select * from Match where Date_Time <?", [datetime], function (err, rows) {
                 if (err) {
                     reject(err);
                     return;
@@ -209,7 +209,7 @@ function f_getMatchesBeforeDateTimeString(datetime) {
 function f_getMatchFirstAfterDateTimeString(datetime) {
     return new Promise(
         (success, reject) => {
-            db.get('Select ID, OPPONENT, MIN(DATE_TIME) as DATE_TIME, MAX_SPACES, IS_CANCELLED from Match where Date_Time >? Limit 1', [datetime], function (err, row) {
+            db.get("Select ID, OPPONENT, MIN(DATE_TIME) as DATE_TIME, MAX_SPACES, IS_CANCELLED from Match where Date_Time >? Limit 1", [datetime], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
@@ -224,7 +224,7 @@ function f_getMatchFirstAfterDateTimeString(datetime) {
 function f_getAllMatches() {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from Match', function (err, rows) {
+            db.all("Select * from Match", function (err, rows) {
                 if (err) {
                     reject(err);
                     return;
@@ -239,7 +239,7 @@ function f_getAllMatches() {
 function f_updateMatch(id, opponent, dateTime, maxSpaces, isCancelled) {
     return new Promise(
         (success, reject) => {
-            db.run('Update match set Max_Spaces= ?, Opponent = ?, Date_Time= ?, Is_Cancelled= ? where id =?',
+            db.run("Update match set Max_Spaces= ?, Opponent = ?, Date_Time= ?, Is_Cancelled= ? where id =?",
                 [maxSpaces, opponent, dateTime, isCancelled, id], function (err) {
                     if (err) {
                         reject(err);
@@ -257,7 +257,7 @@ function f_deleteMatch(id) {
     // TODO: NOT SUPPORTED
     return new Promise(
         (success, reject) => {
-            db.run('Delete from Match where ID = ?', [id], function (err) {
+            db.run("Delete from Match where ID = ?", [id], function (err) {
                 if (err) {
                     reject(err);
                     return;
@@ -272,12 +272,12 @@ function f_deleteMatch(id) {
 function f_getNumberOfBookings(matchID) {
     return new Promise(
         (success, reject) => {
-            db.get('Select Count(Distinct Visitor_ID) as COUNT from Booking where MATCH_ID = ?', [matchID], function (err, row) {
+            db.get("Select Count(Distinct Visitor_ID) as COUNT from Booking where MATCH_ID = ?", [matchID], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
                 }
-                success(row['COUNT']);
+                success(row["COUNT"]);
 
             });
         }
@@ -293,7 +293,7 @@ function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phon
 
     return new Promise(
         (success, reject) => {
-            db.run('Insert into visitor(F_Name,L_Name,City,Postcode,Street,House_Number,Phone_Number,E_mail) values (?,?,?,?,?,?,?,?)',
+            db.run("Insert into visitor(F_Name,L_Name,City,Postcode,Street,House_Number,Phone_Number,E_mail) values (?,?,?,?,?,?,?,?)",
                 [fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail], function (err) {
                     if (err) {
                         reject(err);
@@ -310,7 +310,7 @@ function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phon
 function f_getVisitor(id) {
     return new Promise(
         (success, reject) => {
-            db.get('Select * from visitor where ID =?', [id], function (err, row) {
+            db.get("Select * from visitor where ID =?", [id], function (err, row) {
                 if (err) {
                     reject(err);
                     return;
@@ -325,7 +325,7 @@ function f_getVisitor(id) {
 function f_getAllVisitors() {
     return new Promise(
         (success, reject) => {
-            db.all('Select * from visitor', function (err, rows) {
+            db.all("Select * from visitor", function (err, rows) {
                 if (err) {
                     reject(err);
                     return;
@@ -340,7 +340,7 @@ function f_getAllVisitors() {
 function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     return new Promise(
         (success, reject) => {
-            db.run('Update visitor set F_Name = ?, L_Name = ? , City = ?, Postcode = ?, Street =?, House_number = ?, Phone_number= ?, E_mail=? where id =?',
+            db.run("Update visitor set F_Name = ?, L_Name = ? , City = ?, Postcode = ?, Street =?, House_number = ?, Phone_number= ?, E_mail=? where id =?",
                 [fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail, id], function (err) {
                     if (err) {
                         reject(err);
@@ -357,7 +357,7 @@ function f_updateVisitor(id, fName, lName, city, postcode, street, houseNumber, 
 function f_deleteVisitor(id) {
     return new Promise(
         (success, reject) => {
-            db.run('Delete from visitor where ID =?', [id], function (err) {
+            db.run("Delete from visitor where ID =?", [id], function (err) {
                 if (err) {
                     reject(err);
                     return;

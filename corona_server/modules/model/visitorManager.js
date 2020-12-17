@@ -1,7 +1,7 @@
 /**
  * @module visitorManager
  */
-const o_dbVisitors = require("../../database/DBConnector_Final").visitorQueries;
+const o_dbVisitors = require("./DBConnector_Final").visitorQueries;
 const o_typeHelper = require("../typeHelper");
 
 /** Class representing a visitor. As only instances of this class are exported, the constructor is not visible from outside the module*/
@@ -56,14 +56,6 @@ class Visitor {
             && o_typeHelper.test(this._phoneNumber, "PHONE_NUMBER")
             && o_typeHelper.test(this._eMail, "E_MAIL");
     }
-    /**
-    * Update the visitor saved on the database.
-    * @returns {Visitor} Returns the visitor after it has been updated.
-    * @throws Throws an error if the visitor is invalid or there has been a database error.
-    */
-    update() {
-        return f_updateDataRowFromVisitor(this);
-    }
 
     /**
     * Delete the visitor saved on the database.
@@ -91,6 +83,7 @@ function f_convertDataRowToVisitor(visitorData) {
     }
 }
 
+// Unused
 async function f_updateDataRowFromVisitor(visitor) {
     if (!this.isValid()) {
         throw new TypeError("INVALID");

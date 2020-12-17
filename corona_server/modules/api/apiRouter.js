@@ -8,7 +8,7 @@ const o_router = Express.Router();
 const ApiCall = require("./apiCall");
 
 /** Authentification data that is requested when using basic auth*/
-var o_auth = { login: 'admin', password: 'Corona187' }
+var o_auth = { login: "admin", password: "Corona187" }
 
 // Api call handler ============================================================================================
 // Bookings
@@ -38,9 +38,9 @@ const f_putMatch = require("./apiCallHandler/matches/putMatch");
 function f_requireBasicAuth(req, res, next) {
 
   // parse login and password from headers
-  const s_authHeader = req.headers.authorization || '' // If no header is set, create an empty one
-  const b64auth = s_authHeader.split(' ')[1] || '' // Tries to return what behind the "Base " part of the auth Header, if it fails -> empty string
-  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':') // Convert from base64 to string
+  const s_authHeader = req.headers.authorization || "" // If no header is set, create an empty one
+  const b64auth = s_authHeader.split(" ")[1] || "" // Tries to return what behind the "Base " part of the auth Header, if it fails -> empty string
+  const [login, password] = Buffer.from(b64auth, "base64").toString().split(":") // Convert from base64 to string
 
   // Verify login and password are set and correct
   if (login && password && login === o_auth.login && password === o_auth.password) {
