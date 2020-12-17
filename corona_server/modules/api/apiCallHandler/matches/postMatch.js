@@ -1,19 +1,19 @@
+/**
+ * @module postMatch
+ */
+const ApiCall = require("../../apiCall");
 const f_createMatch = require("../../../model/matchManager").create
 const f_checkInput = require("../../../model/matchManager").checkData
 
 /**
- * @module postMatch
- * @version 0.0.1
- */
-
-/**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
+ * Handler for api calls. Creates a match.
+ *  Expects request body: {
+ *  opponent ---- Name of the opponent the game is against
+ *  date ---- DateTimeString representing start of the game using the full ISO 8601 UTC Z-variation
+ *  maxSpaces ---- Maximum number of bookings that can be made for the match
+ *  isCancelled ---- Shows current status of the match, whether it will be cancelled
+ * }
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_postMatch(apiCall) {
 
@@ -23,7 +23,6 @@ async function f_postMatch(apiCall) {
     const n_maxSpaces = o_body.maxSpaces;
     const b_isCancelled = o_body.isCancelled;
 
- 
     if (!f_checkInput(s_opponent, s_dateTimeString, n_maxSpaces, b_isCancelled)) {
         apiCall.setError("PARAMNOTVALID").sendResponse();
         return;
@@ -33,6 +32,5 @@ async function f_postMatch(apiCall) {
     apiCall.setData(await o_match.loadInfo()).sendResponse();
 
 }
-
 
 module.exports = f_postMatch

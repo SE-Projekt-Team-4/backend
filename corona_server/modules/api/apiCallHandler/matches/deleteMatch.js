@@ -1,18 +1,13 @@
+/**
+ * @module deleteMatch
+ */
+const ApiCall = require("../../apiCall");
 const f_getMatch = require("../../../model/matchManager").getById
 
 /**
- * @module deleteMatch
- * @version 0.0.1
- */
-
-/**
- * Handler for express request.
- * 
- * Returns test data for an given id. If Id is not valid or an internal server errror occures,
- * the response object is changed correspondingly.
- * 
- * @param {Express.Request} req A request based on the Express framework
- * @param {Express.Response} res A Response based on the express framework, when the Promises resolves, this is sent to the client
+ * Handler for api calls. Deltes a match
+ * Expects request parameter: id - Id of match to delete
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_deleteMatch(apiCall) {
 
@@ -21,10 +16,8 @@ async function f_deleteMatch(apiCall) {
     if (o_match === null) {
         apiCall.setError("NOMATCH").sendResponse();
     }
-
     await o_match.delete(true);
     apiCall.setData(o_match).sendResponse();
-
 }
 
 module.exports = f_deleteMatch

@@ -1,16 +1,19 @@
+/**
+ * @module postMatch
+ */
 const ApiCall = require("../../apiCall");
 const f_getMatch = require("../../../model/matchManager").getById
 const f_checkInput = require("../../../model/matchManager").checkData
 
 /**
- * @module putMatch
- */
-
-/**
- * Handler for api calls.
- * Sends a json of all matches using the given api call.
- * 
- * @param {ApiCall} apiCall instance of an api call
+ * Handler for api calls. Updates a match. Can only reduce maxSpaces if they do not become less than the bookings.
+ *  Expects request body: {
+ *  opponent ---- Name of the opponent the game is against
+ *  date ---- DateTimeString representing start of the game using the full ISO 8601 UTC Z-variation
+ *  maxSpaces ---- Maximum number of bookings that can be made for the match
+ *  isCancelled ---- Shows current status of the match, whether it will be cancelled
+ * }
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_putMatch(apiCall) {
     const o_params = apiCall.getRequestParams();
@@ -21,8 +24,6 @@ async function f_putMatch(apiCall) {
     if (o_match === null) {
         apiCall.setError("NOMATCH").sendResponse();
     }
-
-
 
     const s_opponent = o_body.opponent;
     const s_dateTimeString = o_body.date;
@@ -52,6 +53,5 @@ async function f_putMatch(apiCall) {
 
     apiCall.setData(await o_match.loadInfo()).sendResponse();
 }
-
 
 module.exports = f_putMatch

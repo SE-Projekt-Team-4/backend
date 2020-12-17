@@ -1,5 +1,5 @@
 /**
- * @file Run this file on a server to start the Corona-Timeslot application application
+ * @file Run this file on a server to start the Corona-Timeslot application
  * @version 0.0.1
  */
 
@@ -17,13 +17,11 @@ const n_port = process.env.PORT || 8000;
 o_app.use('/api', o_apiRouter)
 
 
-//Catch all other routes and redirect to react app
+//Catch all other routes and redirect to the fg08 react app
 o_app.use('/', Express.static(path.join(__dirname, 'reactApps', 'fg08')));
-
 o_app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, 'reactApps', 'fg08', 'index.html'));
 });
-
 
 
 // Log server start

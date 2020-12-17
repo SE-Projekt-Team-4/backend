@@ -10,7 +10,7 @@ const f_sendMail = require("../../../mailHelper").sendConfirmationMail
 const f_blockConcurrencyGroupedBy = require("../../../concurrencyHelper").blockConcurrencyGroupedByKey
 
 /**
- * Handler for api calls. Returns info of redeemed Bookings for a match.
+ * Handler for api calls. Creates a new booking.
  * Expects request body: {
  *  matchId ---- Id of the match the booking is for
  *  fName ---- First Name of visitor
@@ -88,7 +88,7 @@ async function f_postBooking(apiCall) {
     //===================================================================================================
 
     try { // Send confirmation mail
-        await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.id, o_bookInfo.match.opponent,
+        await f_sendMail(o_bookInfo.visitor.fName, o_bookInfo.visitor.lName, o_bookInfo.match.opponent,
             o_bookInfo.match.date, o_bookInfo.verificationCode, o_bookInfo.visitor.eMail)
         apiCall.setData(o_bookInfo).sendResponse();
     }

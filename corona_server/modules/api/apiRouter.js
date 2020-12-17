@@ -1,12 +1,17 @@
 /**
- * @file This module defines the express router that exposes all urls for the api
- * @version 0.0.1
+ * @module apiRouter
+ * 
+ * Returns the router for the api. Formulates Middleware
  */
 const Express = require("express");
 const o_router = Express.Router();
 const ApiCall = require("./apiCall");
 
+/** Authentification data that is requested when using basic auth*/
+var o_auth = { login: 'admin', password: 'Corona187' }
 
+// Api call handler ============================================================================================
+// Bookings
 const f_deleteBookingsOverSaveDuration = require("./apiCallHandler/bookings/deleteBookingsOverSaveDuration");
 const f_getBookings = require("./apiCallHandler/bookings/getBookings");
 const f_getBookingsForMatch = require("./apiCallHandler/bookings/getBookingsForMatch");
@@ -14,21 +19,23 @@ const f_getBookingsRedeemed = require("./apiCallHandler/bookings/getBookingsRede
 const f_getBookingsRedeemedForMatch = require("./apiCallHandler/bookings/getBookingsRedeemedForMatch");
 const f_postBooking = require("./apiCallHandler/bookings/postBooking");
 const f_redeemBooking = require("./apiCallHandler/bookings/redeemBooking");
-
+// Matches
 const f_deleteMatch = require("./apiCallHandler/matches/deleteMatch");
 const f_getMatchById = require("./apiCallHandler/matches/getMatchById");
 const f_getMatches = require("./apiCallHandler/matches/getMatches");
 const f_getMatchNext = require("./apiCallHandler/matches/getMatchNext");
 const f_postMatch = require("./apiCallHandler/matches/postMatch");
 const f_putMatch = require("./apiCallHandler/matches/putMatch");
+//==============================================================================================================
 
 
+// Middleware =================================================================================================================
 
-// HANDLER =================================================================================================================
+/**
+ * Middleware to be used by the express Framework.
+ * Request that are routed through this middleware require basicAuth or will return a "not authorized response"
+ */
 function f_requireBasicAuth(req, res, next) {
-  // authentication middleware
-
-  const auth = { login: 'admin', password: 'Corona187' } // change this
 
   // parse login and password from headers
   const s_authHeader = req.headers.authorization || '' // If no header is set, create an empty one
@@ -36,51 +43,29 @@ function f_requireBasicAuth(req, res, next) {
   const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':') // Convert from base64 to string
 
   // Verify login and password are set and correct
-  if (login && password && login === auth.login && password === auth.password) {
+  if (login && password && login === o_auth.login && password === o_auth.password) {
     // Access granted...
     return next()
   }
 
   // Access denied...
-  req.manager.setError("NOAUTH").sendResponse();
-
+  req.apiCall.setError("NOAUTH").sendResponse();
 }
 
-
-function f_allowCors(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Request-Method", "POST, GET, OPTIONS, PUT, DELETE");  // for now we will act as if we allow all methods
-  next();
-}
-
-function f_handleCorsPrefetchRequests(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Request-Method", "POST, GET, OPTIONS, PUT, DELETE");  // for now we will act as if we allow all methods
-  res.sendStatus(200);
-}
-
-// Modify ExpressRequest to inlcude a custom Manager for easier Management of Api
+/**
+ * Middleware to be used by the express Framework.
+ * Attach an instance of the ApiCall class to the request object.
+ */
 function f_appendApiCallManagerToReq(req, res, next) {
-  req.manager = new ApiCall(req, res);
-  console.log("CREATE: ", req.manager.getCallData());
+  req.apiCall = new ApiCall(req, res);
+  console.log("CREATE: ", req.apiCall.getCallData());
   next();
 }
 
-// Handle Errors that can not be handled in routes -------------------------------
-function f_handleParseErrors(err, req, res, next) {
-  req.manager.setError("JSONPARSE").sendResponse();
-}
-
-function f_handle404(req, res, next) {
-  req.manager.setError("NOROUTE").sendResponse();
-}
-
-function f_return200(req, res, next) {
-  req.manager.setData("Success").sendResponse();
-}
-
+/**
+ * Middleware to be used by the express Framework.
+ * Send an error manually in case a ApiCall can not be attached to a request
+ */
 function f_handleApiCallManagerErrors(err, req, res, next) {
   console.error(err);
   res.status(500);
@@ -93,31 +78,57 @@ function f_handleApiCallManagerErrors(err, req, res, next) {
   });
 }
 
+/**
+ * Wrapps an apiCallHandler as express middleware to be used by the express Framework.
+ * @param {function} handler - A apiCallHandler, is expected to take apiCall as parameter and always call the sendResponse() function of the apiCall to end it.
+ * @returns express middleware wrapping the handler: function (req, res, next){}
+ */
 function f_callApiCallHandler(handler) {
   return async function (req, res, next) {
     try {
-      await handler(req.manager);
+      await handler(req.apiCall);
     }
     catch (error) {
-      console.log("SYSERR: ", req.manager.getCallData());
+      console.log("SYSERR: ", req.apiCall.getCallData());
       console.error(error);
-      req.manager.setError("SYSERR").sendResponse();
+      req.apiCall.setError("SYSERR").sendResponse();
     }
   }
 }
-//-----------------------------------------------------------------------------------------
-// HANDLER =================================================================================================================
+
+// Error Handling Middleware ===========================================================================
+/**
+ * Middleware to be used by the express Framework.
+ * Send Parse error response if an error is caught.
+ */
+function f_handleParseErrors(err, req, res, next) {
+  req.apiCall.setError("JSONPARSE").sendResponse();
+}
+
+/**
+ * Middleware to be used by the express Framework.
+ * Send 404 error response if an error is caught.
+ */
+function f_handle404(req, res, next) {
+  req.apiCall.setError("NOROUTE").sendResponse();
+}
+
+/**
+ * Middleware to be used by the express Framework.
+ * Send 200 response.
+ */
+function f_return200(req, res, next) {
+  req.apiCall.setData("Success").sendResponse();
+}
 
 
 // ROUTES ==================================================================================================================
 
-
+//Applied on all routes
 o_router.use(
-  // Allow all relevant types of CORS
-  f_allowCors,
   // Add custom utilities to Express request Object
   f_appendApiCallManagerToReq,
-  // handle Errors during first 2 Steps
+  // handle Errors without using the apiCallManager
   f_handleApiCallManagerErrors,
   // Parse body as json
   Express.json(),
@@ -127,17 +138,14 @@ o_router.use(
 
 
 o_router.route("/matches")
-  .options(f_handleCorsPrefetchRequests)
-  .get(f_callApiCallHandler(f_getMatches)) // Get all natches
+  .get(f_callApiCallHandler(f_getMatches)) // Get all matches
   .post(f_requireBasicAuth)
   .post(f_callApiCallHandler(f_postMatch)); // Create a new natch
 
 o_router.route("/nextMatch")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_callApiCallHandler(f_getMatchNext)); // Get the next natch that is going to happen
 
 o_router.route("/matches/:id")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_callApiCallHandler(f_getMatchById)) // Get match with given id
   .put(f_requireBasicAuth)
   .put(f_callApiCallHandler(f_putMatch)) // Update match with given id
@@ -145,42 +153,35 @@ o_router.route("/matches/:id")
   .delete(f_callApiCallHandler(f_deleteMatch)); // Delete match with given id
 
 o_router.route("/matches/:id/redeemedBookings")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
   .get(f_callApiCallHandler(f_getBookingsRedeemedForMatch)); // Get redeemed bookings for match
 
 o_router.route("/matches/:id/bookings")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
   .get(f_callApiCallHandler(f_getBookingsForMatch)); // Get bookings for match
 
 
 
 o_router.route("/bookings")
-  .options(f_handleCorsPrefetchRequests)
   .post(f_callApiCallHandler(f_postBooking)) // Post a booking
   .get(f_requireBasicAuth)
   .get(f_callApiCallHandler(f_getBookings)); // Get all bookings
 
 o_router.route("/bookings/redeem")
-  .options(f_handleCorsPrefetchRequests)
   .post(f_requireBasicAuth)
   .post(f_callApiCallHandler(f_redeemBooking)); // Redeem a booking code
 
 o_router.route("/bookings/overdue")
-  .options(f_handleCorsPrefetchRequests)
   .delete(f_requireBasicAuth)
   .delete(f_callApiCallHandler(f_deleteBookingsOverSaveDuration)); // Delete booking and visitor data that is old
 
 
 o_router.route("/redeemedBookings")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
   .get(f_callApiCallHandler(f_getBookingsRedeemed)); // get all redeemed Bookings
 
 // Returns 200 when basic auth passes 
 o_router.route("/isAdmin")
-  .options(f_handleCorsPrefetchRequests)
   .get(f_requireBasicAuth)
   .get(f_return200); // return 200
 

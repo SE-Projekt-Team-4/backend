@@ -84,7 +84,7 @@ class ApiCall {
      * Populate the api call data using one of the predefined errors.
      * @param {string} errorCode - One of the predefined errorCodes, that is used to fetch additional data for the error.
      * @param {any} additionalData - Additional data will be added to the "additionaData" tag of the error.
-     * @return {ApiCall} - Returns itself to allow for function chaining.
+     * @return {ApiCall} Returns itself to allow for function chaining.
      */
     setError(errorCode, additionalData) {
         delete this._callData.data;
@@ -105,7 +105,7 @@ class ApiCall {
     /**
      * Populate the api call data using data.
      * @param {any} data - Data to be sent.
-     * @return {ApiCall} - Returns itself to allow for function chaining.
+     * @return {ApiCall} Returns itself to allow for function chaining.
      */
     setData(data) {
         delete this._callData.data;
@@ -115,7 +115,7 @@ class ApiCall {
     }
 
     /**
-     * Send a response using this api calls response and data.
+     * Send a response using this api calls response object and populated data/error.
      */
     sendResponse() {
         this._res.status(this.getErrorStatus()).json(this.getCallData());
@@ -123,7 +123,7 @@ class ApiCall {
 
     /**
      * Returns the http status based on current state of the call data. If no error is set it returns 200.
-     * @return {number} - Returns http status.
+     * @return {number} Returns http status.
      */
     getErrorStatus() {
         if (this._callData.error === undefined) {

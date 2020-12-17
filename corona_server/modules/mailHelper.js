@@ -1,3 +1,7 @@
+/**
+ * @module concurrencyHelper
+ */
+
 const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 const fs = require('fs');
@@ -21,13 +25,23 @@ const a_placeholders = [
     '#QRCode#',
     '#today#',
     '#link_homepage#',
-    '#link_match#'
+    '#link_homepage2#'
 ];
 
 const s_linkHome = 'fg08mutterstadt.cfapps.eu10.hana.ondemand.com'
 
-
-async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate, verificationCode, eMail) {
+/**
+ * Sends a verification E-Mail using the given parameters.
+ * @param {string} fName 
+ * @param {string} lName 
+ * @param {string} opponent 
+ * @param {string} matchDate 
+ * @param {string} verificationCode 
+ * @param {string} eMail 
+ * @returns {undefined} Returns after mail has been successfully.
+ * @throws {Error}
+ */
+async function f_sendMailFromTemplate(fName, lName, opponent, matchDate, verificationCode, eMail) {
     
     const p_html = f_getMailTemplate();
 
@@ -47,7 +61,7 @@ async function f_sendMailFromTemplate(fName, lName, matchId, opponent, matchDate
     s_html = s_html.replace(a_placeholders[5], s_QRCodeHTML);
     s_html = s_html.replace(a_placeholders[6], s_dateNow);
     s_html = s_html.replace(a_placeholders[7], s_linkHome);
-    s_html = s_html.replace(a_placeholders[8], s_linkBaseMatch + matchId);
+    s_html = s_html.replace(a_placeholders[8], s_linkHome);
 
     const mailOptions = {
         from: 'NoReply.FG08Mutterstadt@gmail.com',

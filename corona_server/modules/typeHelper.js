@@ -1,4 +1,6 @@
-const e = require("express");
+/**
+ * @module typeHelper
+ */
 
 // Type Validators ----------------------------------------------------------
 const o_regex = {
@@ -11,6 +13,12 @@ const o_regex = {
     "PHONE_NUMBER": /^[+0-9]{8,15}$/
 }
 
+/**
+ * Checks if object can be implicitly transformed into the type described by the tag
+ * @param {any} object - Object to be checked
+ * @param {string} tag - String describing what type the object is supposed to represent
+ * @throws {Error} Throws error if the given Tag does not exist
+ */
 function f_test (object, tag) {
     var b_isValid = false;
     if (o_regex[tag] !== undefined){
@@ -38,6 +46,10 @@ function f_test (object, tag) {
     return b_isValid
 }
 
+/**
+ * Converts an full ISO8601 UTC Z-Variation DateTimeString into a date 
+ * @param {string} dateTimeString 
+ */
 function f_convertToDate (dateTimeString) {
     if (f_test(dateTimeString, "DATE_TIME_STRING") === false){
         throw new TypeError("One or more Invalid Parameters");

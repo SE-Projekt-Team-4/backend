@@ -199,7 +199,7 @@ async function f_updateDataRowFromMatch(match) {
  * @param {string} dateTimeString - A string that represents the dateTime of the match.
  * @param {number} maxSpaces - The max amount of spaces.
  * @param {boolean} isCancelled - Whether the match is cancelled.
- * @throws {Errror} - Throws an "INVALID" Error if the used attributes would create an invalid match.
+ * @throws {Error} - Throws an "INVALID" Error if the used attributes would create an invalid match.
  * @returns {Match} - A match
  */
 async function f_createMatch(opponent, dateTimeString, maxSpaces, isCancelled) {
@@ -232,12 +232,9 @@ function f_checkConstructorData(opponent, dateTimeString, maxSpaces, isCancelled
 }
 
 /**
- * Get a certain match from the database using its id. If no match is found, this returns null.
- * @param {string} opponent - Opponent that the match is against.
- * @param {Date} date - DateTime Object that contains the dateTime of the match.
- * @param {number} maxSpaces - The max amount of spaces.
- * @param {boolean} isCancelled - Whether the match is cancelled.
- * @returns {Match|null} Match with the given id or null
+ * Get match for given id
+ * @param {number} id - Id of a match
+ * @returns {Match|null} - A match or null if no match is found
  */
 async function f_getMatch(id) {
     const o_matchData = await o_dbMatches.get(id);

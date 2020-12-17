@@ -1,28 +1,41 @@
+/**
+ * @module concurrencyHelper
+ */
 
 var o_semaphores = {};
 
-
-async function f_blockConcurrencyGroupedByKey(obj) {
-    if (o_semaphores[obj] === undefined) {
-        o_semaphores[obj] = new Semaphore(1);
+/**
+ * Used to block concurrency of asynchronous code with the same key.
+ * When the function is called, all other calls to this function with the same key will be blocked until the block is lifted, using the handler returned by the function.
+ * If the function is already called for the key, the function will wait till all other previous callers have used the handler to release the block.
+ * @param {obj} key - A key describing the 
+ * @return {function} A function that takes no parameters and releases the block for the next call of this function with the same key
+ */
+async function f_blockConcurrencyGroupedByKey(key) {
+    if (o_semaphores[key] === undefined) {
+        o_semaphores[key] = new Semaphore(1);
     }
-    o_semaphores[obj].take();
+    o_semaphores[key].take();
 
     return function () {
-        o_semaphores[obj].leave();
-        if (o_semaphores[obj].isEmpty()) {
-            delete o_semaphores[obj];
+        o_semaphores[key].leave();
+        if (o_semaphores[key].isEmpty()) {
+            delete o_semaphores[key];
         }
     }
 }
 
-
+/**
+ * Represents a queue that allows to wait for callbacks using promises and executes one callback after another when next is called.
+ */
 class CallbackQueue {
-
     constructor() {
         this._callbacks = [];
     }
-
+    /**
+     * Create a Promise that resolves when its callback in the queue is called.
+     * @returns {Promise<undefined>} - Returns as soon as the callback is called by next.
+     */
     wait() {
         return new Promise((resolve, reject) => {
             const f_callback = function () {
@@ -31,7 +44,10 @@ class CallbackQueue {
             this._callbacks.push(f_callback);
         });
     }
-
+    /**
+     * Calls the first callback in the queue causing the corresponding Promise (created by (CallbackQueue.wait())) to resolve.
+     * @returns {boolean} - Returns true if a callback is called, returns false if the queue is empty
+     */
     next() {
         if (!this.isEmpty()) {
             this._callbacks.shift()();
@@ -48,6 +64,7 @@ class CallbackQueue {
 
 }
 
+/** Represents a Semaphore */
 class Semaphore {
 
     constructor(maxConcurrent) {

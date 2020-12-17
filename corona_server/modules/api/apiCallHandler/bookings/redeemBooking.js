@@ -5,7 +5,7 @@ const ApiCall = require("../../apiCall");
 const f_getBookingByVerification = require("../../../model/bookingManager").getByVerificationCode
 
 /**
- * Handler for api calls. Redeems a booking using ist verification Code.
+ * Handler for api calls. Redeems a booking using its verification Code.
  * Expects request body: {
  *  verificationCode ---- verification code of a booking
  * }

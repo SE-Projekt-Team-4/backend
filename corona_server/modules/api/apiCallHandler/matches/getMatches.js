@@ -1,15 +1,12 @@
+/**
+ * @module getMatches
+ */
 const ApiCall = require("../../apiCall");
 const f_getAllMatches = require("../../../model/matchManager").getAll
 
 /**
- * @module getMatches
- */
-
-/**
- * Handler for api calls.
- * Sends a json of all matches using the given api call.
- * 
- * @param {ApiCall} apiCall instance of an api call
+ * Handler for api calls. Returns all matches.
+ * @param {ApiCall} apiCall Instance of an api call.
  */
 async function f_getMatches(apiCall) {
     a_matches = await f_getAllMatches();
@@ -21,6 +18,5 @@ async function f_getMatches(apiCall) {
         ));
     apiCall.setData(a_matchdata).sendResponse();
 }
-
 
 module.exports = f_getMatches

@@ -1,10 +1,12 @@
+/**
+ * @module visitorManager
+ */
 const o_dbVisitors = require("../../database/DBConnector_Final").visitorQueries;
 const o_typeHelper = require("../typeHelper");
 
-
-
+/** Class representing a visitor. As only instances of this class are exported, the constructor is not visible from outside the module*/
 class Visitor {
-
+    // Private constructor
     constructor(id, fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
         this._id = id;
         this._fName = fName;
@@ -17,6 +19,10 @@ class Visitor {
         this._eMail = eMail;
     }
 
+    /**
+    * Returns info describing this visitor.
+    * @returns {object} Object describing this visitor.
+    */
     async loadInfo() {
         return {
             id: this._id,
@@ -35,6 +41,10 @@ class Visitor {
         return this._id;
     }
 
+    /**
+    * Returns true if this visitor is valid.
+    * @returns {boolean} True if this match is valid, otherwise false.
+    */
     isValid() {
         return o_typeHelper.test(this._id, "POSITIVE_INT")
             && o_typeHelper.test(this._fName, "NAME")
@@ -46,11 +56,20 @@ class Visitor {
             && o_typeHelper.test(this._phoneNumber, "PHONE_NUMBER")
             && o_typeHelper.test(this._eMail, "E_MAIL");
     }
-
+    /**
+    * Update the visitor saved on the database.
+    * @returns {Visitor} Returns the visitor after it has been updated.
+    * @throws Throws an error if the visitor is invalid or there has been a database error.
+    */
     update() {
         return f_updateDataRowFromVisitor(this);
     }
 
+    /**
+    * Delete the visitor saved on the database.
+    * @returns {undefined} Returns after deletion is successfull.
+    * @throws Throws an error if there is a database error or the match no longer exist on the db.
+    */
     delete() {
         return o_dbVisitors.delete(this._id);
     }
@@ -59,6 +78,7 @@ class Visitor {
 
 
 // Private Section --------------------------------------------------------------------------------------------------
+// Handles conversion between Visitor Instances and their persistent counterparts (data representing a Visitor on the database)
 function f_convertDataRowToVisitor(visitorData) {
 
     const o_visitor = new Visitor(visitorData.ID, visitorData.F_NAME, visitorData.L_Name,
@@ -67,13 +87,13 @@ function f_convertDataRowToVisitor(visitorData) {
         return o_visitor;
     }
     else {
-        throw new TypeError("Invalid oject or attributes");
+        throw new TypeError("INVALID");
     }
 }
 
 async function f_updateDataRowFromVisitor(visitor) {
     if (!this.isValid()) {
-        throw new TypeError("Invalid oject or attributes");
+        throw new TypeError("INVALID");
     }
     const o_visitorData = await o_dbVisitors.update(
         this._id, this._fName, this._lName,
@@ -94,6 +114,19 @@ async function f_updateDataRowFromVisitor(visitor) {
 //-------------------------------------------------------------------------------------------------------------------
 
 // Exports ----------------------------------------------------------------------------------------------------------
+/**
+ * Create a Visitor and its persistent counterpart on the database.
+ * @param {string} fName - First name. 
+ * @param {string} lname - Last name.
+ * @param {string} city - City.
+ * @param {string} postcode - Postcode.
+ * @param {string} street - Street.
+ * @param {string} houseNumber - House Number.
+ * @param {string} phoneNumber - Phone Number.
+ * @param {string} eMail - E-Mail.
+ * @throws {Error} - Throws an "INVALID" Error if the used attributes would create an invalid visitor.
+ * @returns {Visitor} - A Visitor
+ */
 async function f_createVisitor(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     if (!(o_typeHelper.test(fName, "NAME")
         && o_typeHelper.test(lName, "NAME")
@@ -108,6 +141,18 @@ async function f_createVisitor(fName, lName, city, postcode, street, houseNumber
     return f_convertDataRowToVisitor(await o_dbVisitors.create(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail));
 }
 
+/**
+ * Check if data would create a valid visitor.
+ * @param {string} fName - First name. 
+ * @param {string} lname - Last name.
+ * @param {string} city - City.
+ * @param {string} postcode - Postcode.
+ * @param {string} street - Street.
+ * @param {string} houseNumber - House Number.
+ * @param {string} phoneNumber - Phone Number.
+ * @param {string} eMail - E-Mail.
+ * @return {boolean} Returns true if all attributes are valid otherwise returns false.
+ */
 function f_checkConstructorData(fName, lName, city, postcode, street, houseNumber, phoneNumber, eMail) {
     return (o_typeHelper.test(fName, "NAME")
         && o_typeHelper.test(lName, "NAME")
@@ -119,6 +164,11 @@ function f_checkConstructorData(fName, lName, city, postcode, street, houseNumbe
         && o_typeHelper.test(eMail, "E_MAIL"))
 }
 
+/**
+ * Get visitor for given id
+ * @param {number} id - Id of a visitor
+ * @returns {Match|null} - A visitor or null if no visitor is found
+ */
 async function f_getVisitor(id) {
     const o_visitorData = await o_dbVisitors.get(id);
     if (o_visitorData === undefined) {
