@@ -28,16 +28,6 @@ class Match {
     }
 
     /**
-    * Change the date.
-    * @param {Date} date
-    * @throws Throws an "INVALID" Error if the used attributes would create an invalid match, also throws db errors.
-    */
-    async setDateTime(date) {
-        this._date = date;
-        await f_updateDataRowFromMatch(this);
-    }
-
-    /**
     * Change the date using a dateTimeString.
     * @param {Date} dateTimeString - A String that represents a date using the full z-variation UTC ISO8601 Date
     * @throws Throws if dateTimeString is in the wrong format, also throws db errors.

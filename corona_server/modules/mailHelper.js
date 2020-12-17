@@ -28,7 +28,7 @@ const a_placeholders = [
     "#link_homepage2#"
 ];
 
-const s_linkHome = "fg08mutterstadt.cfapps.eu10.hana.ondemand.com"
+const s_linkHome = "https://fg08mutterstadt.cfapps.eu10.hana.ondemand.com"
 
 /**
  * Sends a verification E-Mail using the given parameters.
@@ -37,7 +37,7 @@ const s_linkHome = "fg08mutterstadt.cfapps.eu10.hana.ondemand.com"
  * @param {string} opponent 
  * @param {string} matchDate 
  * @param {string} verificationCode 
- * @param {string} eMail 
+ * @param {string} eMail - Adress to send the eMail to
  * @returns {undefined} Returns after mail has been successfully.
  * @throws {Error}
  */
