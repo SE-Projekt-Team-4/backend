@@ -1,6 +1,5 @@
 /**
  * @file Run this file on a server to start the Corona-Timeslot application
- * @version 0.0.1
  */
 
 const path = require('path');
