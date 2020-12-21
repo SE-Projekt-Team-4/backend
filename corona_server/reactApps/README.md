@@ -1,5 +1,5 @@
-Put react app builds here, they will be ignored by git.
+Legen Sie React-App-Builds hier ab, sie werden von Git ignoriert.
 
-Server currently uses fg08 on the main route
+Server verwendet derzeit fg08 auf der Hauptroute
 
-Apps are not allowed to be run on route "/api" because it is predefined for backend services.
+Apps dürfen nicht auf der Route "/api" ausgeführt werden, da diese für Backend-Dienste vordefiniert ist.
