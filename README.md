@@ -1,7 +1,7 @@
 ##Backend
 https://github.com/SE-Projekt-Team-4/backend
 
-Loakles Testen:
+Lokales Testen:
 Zum lokalen testen muss Node Package Manager und Node.JS installiert sein.
 
 Gehen sie in den Ordner "corona_server" und führen den Befehl "npm install" aus, um alle relevanten Module zu installieren.
@@ -10,7 +10,7 @@ Der Server wird dann standardmäßig auf Port 8000, localhost gestartet.
 
 Deployment auf Cloud foundry:
 
-Zum Deploymnt auf cloud foundry haben wir CCloud foundry CLI benutzt. Sobald man einen eingerichteten Account hat und auf dem Pc angemeldet ist, kann man einfach im Root Ordner dieses gits den Befehl "cf push" aufrufen, um die App live zu schalten.
+Zum Deploymnt auf cloud foundry haben wir Cloud foundry CLI benutzt. Sobald man einen eingerichteten Account hat und auf dem Pc angemeldet ist, kann man einfach im Root Ordner dieses gits den Befehl "cf push" aufrufen, um die App live zu schalten.
 
 Integration des Frontends:
 
