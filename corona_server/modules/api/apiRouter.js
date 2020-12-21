@@ -2,13 +2,14 @@
  * @module apiRouter
  * 
  * Returns the router for the api. Formulates Middleware.
- * If you want to change credentials for the basic auth, you can do it here.
  */
 const Express = require("express");
 const o_router = Express.Router();
 const ApiCall = require("./apiCall");
 
-/** Authentification data that is requested when using basic auth*/
+/** Authentification data that is requested when using basic auth
+ *  If you want to change credentials for the basic auth, you can do it here.
+*/
 var o_auth = { login: "admin", password: "Corona187" }
 
 // Api call handler ============================================================================================
