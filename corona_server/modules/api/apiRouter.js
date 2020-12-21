@@ -1,7 +1,8 @@
 /**
  * @module apiRouter
  * 
- * Returns the router for the api. Formulates Middleware
+ * Returns the router for the api. Formulates Middleware.
+ * If you want to change credentials for the basic auth, you can do it here.
  */
 const Express = require("express");
 const o_router = Express.Router();
@@ -143,7 +144,7 @@ o_router.route("/matches")
   .post(f_callApiCallHandler(f_postMatch)); // Create a new natch
 
 o_router.route("/nextMatch")
-  .get(f_callApiCallHandler(f_getMatchNext)); // Get the next natch that is going to happen
+  .get(f_callApiCallHandler(f_getMatchNext)); // Get the next match that is going to happen
 
 o_router.route("/matches/:id")
   .get(f_callApiCallHandler(f_getMatchById)) // Get match with given id
